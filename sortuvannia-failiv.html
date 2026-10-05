@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Розклади файли по кошиках</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&family=JetBrains+Mono:wght@600&display=swap&subset=cyrillic" rel="stylesheet">
+<style>
+:root{
+  --page:#EEF1FF; --ink:#1A1B4B; --muted:#585C8C; --card:#FFFFFF; --line:#D6DBF5;
+  --desk:#2B1F7A; --desk-dot:rgba(255,255,255,.07);
+  --blue:#2F6BFF; --violet:#7C4DFF; --amber:#FFC233; --ok:#16A34A; --bad:#E5484D;
+  --font:"Nunito", "Segoe UI", Arial, system-ui, sans-serif;
+  --mono:"JetBrains Mono", Consolas, "Courier New", monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --page:#13113A; --ink:#ECEBFF; --muted:#AEADDA; --card:#221F58; --line:#3A3680; --desk:#1D1660; }
+}
+:root[data-theme="dark"]{ --page:#13113A; --ink:#ECEBFF; --muted:#AEADDA; --card:#221F58; --line:#3A3680; --desk:#1D1660; }
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%; scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0; min-height:100%; background:var(--page); color:var(--ink); font-family:var(--font); -webkit-tap-highlight-color:transparent}
+button{font:inherit; color:inherit}
+:focus-visible{outline:3px solid var(--amber); outline-offset:3px}
+
+.app{max-width:1440px; margin:0 auto; padding:18px clamp(12px,2.2vw,32px) 24px; display:flex; flex-direction:column; gap:16px}
+
+/* top bar */
+.top{display:flex; flex-wrap:wrap; align-items:center; gap:12px 24px; justify-content:space-between}
+.top h1{margin:0; font-size:clamp(22px,2.6vw,34px); font-weight:900; line-height:1.1; color:var(--desk)}
+:root[data-theme="dark"] .top h1{color:#fff}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .top h1{color:#fff} }
+.top p{margin:4px 0 0; color:var(--muted); font-size:clamp(14px,1.4vw,18px); font-weight:700}
+.stats{display:flex; gap:10px; flex-wrap:wrap}
+.stat{background:var(--card); border:2px solid var(--line); border-radius:14px; padding:6px 14px; min-width:96px; text-align:center}
+.stat b{display:block; font-size:24px; font-weight:900; line-height:1.1; font-variant-numeric:tabular-nums}
+.stat span{font-size:13px; color:var(--muted); font-weight:700}
+.stat.bad b{color:var(--bad)}
+
+.controls{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.btn{border:2px solid var(--line); background:var(--card); border-radius:12px; padding:8px 14px; font-weight:800; font-size:15px; cursor:pointer}
+.btn.primary{background:var(--blue); border-color:var(--blue); color:#fff}
+.btn[aria-pressed="true"]{background:var(--violet); border-color:var(--violet); color:#fff}
+.seg{display:inline-flex; border:2px solid var(--line); border-radius:12px; overflow:hidden; background:var(--card)}
+.seg button{border:0; background:none; padding:8px 12px; font-weight:800; cursor:pointer; font-size:15px}
+.seg button[aria-pressed="true"]{background:var(--blue); color:#fff}
+.ctl-label{font-size:14px; font-weight:700; color:var(--muted)}
+
+/* message */
+.msg{min-height:30px; font-size:clamp(15px,1.5vw,19px); font-weight:800; padding:0 4px}
+.msg.ok{color:var(--ok)} .msg.bad{color:var(--bad)}
+.msg code{font-family:var(--mono); background:var(--card); border:1px solid var(--line); padding:1px 6px; border-radius:6px}
+
+/* desk = desktop with files */
+.desk{
+  position:relative; background-color:var(--desk);
+  background-image:radial-gradient(var(--desk-dot) 1.5px, transparent 1.6px);
+  background-size:22px 22px; border-radius:22px; padding:18px;
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(124px,1fr)); gap:10px 8px;
+  min-height:180px; align-content:start;
+}
+.desk-empty{grid-column:1/-1; color:#fff; text-align:center; padding:40px 10px; font-weight:800; font-size:20px; opacity:.85}
+.file{
+  border:0; background:transparent; border-radius:14px; padding:8px 6px 6px;
+  display:flex; flex-direction:column; align-items:center; gap:6px; cursor:grab;
+  touch-action:none; user-select:none; -webkit-user-select:none;
+  transition:opacity .15s, background .15s;
+}
+.file:hover{background:rgba(255,255,255,.10)}
+.file.sel{background:rgba(255,194,51,.22); box-shadow:inset 0 0 0 3px var(--amber)}
+.file.lifting{opacity:.25}
+.file .ficon{width:56px; height:70px; filter:drop-shadow(0 3px 4px rgba(0,0,0,.35)); pointer-events:none}
+.fname{font-family:var(--mono); font-weight:600; font-size:13px; color:#fff; text-align:center; line-height:1.25;
+  overflow-wrap:break-word; text-shadow:0 1px 2px rgba(0,0,0,.6); pointer-events:none; max-width:120px}
+.file.shake{animation:shake .4s}
+.ghost{position:fixed; left:0; top:0; z-index:50; pointer-events:none; margin:0; background:rgba(43,31,122,.85);
+  box-shadow:0 12px 30px rgba(0,0,0,.35); border-radius:14px; cursor:grabbing; will-change:transform}
+.ghost.fly{transition:transform .28s cubic-bezier(.3,.7,.4,1), opacity .28s}
+
+/* baskets */
+.baskets{display:grid; grid-template-columns:repeat(6,1fr); gap:clamp(8px,1.2vw,18px); padding-top:26px}
+.basket{
+  --c:#2F6BFF; position:relative; border:0; background:none; padding:0; cursor:pointer; text-align:left;
+  display:flex; flex-direction:column;
+}
+.basket::before{ /* handle */
+  content:""; position:absolute; left:22%; right:22%; top:-24px; height:44px;
+  border:5px solid var(--c); border-bottom:0; border-radius:60px 60px 0 0; opacity:.85;
+}
+.b-rim{position:relative; z-index:1; background:var(--c); color:#fff; border-radius:14px; padding:8px 10px;
+  display:flex; align-items:center; gap:8px}
+.b-rim svg{width:30px; height:30px; flex:none}
+.b-name{font-weight:900; font-size:clamp(14px,1.35vw,19px); line-height:1.1; flex:1; min-width:0}
+.b-count{background:rgba(255,255,255,.25); border-radius:10px; padding:1px 8px; font-weight:900; font-variant-numeric:tabular-nums}
+.b-body{
+  margin:0 6px; min-height:150px; padding:10px 8px 14px;
+  clip-path:polygon(0 0,100% 0,93% 100%,7% 100%);
+  border-radius:0 0 26px 26px;
+  background:repeating-linear-gradient(45deg,
+    color-mix(in srgb, var(--c) 12%, var(--card)) 0 9px,
+    color-mix(in srgb, var(--c) 22%, var(--card)) 9px 18px);
+  display:flex; flex-wrap:wrap; align-content:flex-start; gap:5px; justify-content:center;
+  transition:background .2s;
+}
+.basket.hover .b-rim, .basket.armed .b-rim{box-shadow:0 0 0 4px var(--amber)}
+.basket.hover .b-body{background:color-mix(in srgb, var(--c) 30%, var(--card))}
+
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes pop{from{transform:scale(.4); opacity:0} to{transform:scale(1); opacity:1}}
+@keyframes okflash{0%{box-shadow:0 0 0 0 rgba(22,163,74,.9)} 100%{box-shadow:0 0 0 14px rgba(22,163,74,0)}}
+
+
+/* chips in baskets */
+.chip{font-family:var(--mono); font-size:12px; font-weight:600; background:var(--card); color:var(--ink);
+  border:1.5px solid color-mix(in srgb, var(--c) 50%, transparent); border-radius:8px; padding:3px 7px; max-width:100%;
+  overflow-wrap:break-word; cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none; line-height:1.3}
+.chip.new{animation:pop .3s}
+.chip.sel{box-shadow:0 0 0 3px var(--amber)}
+.chip.lifting{opacity:.25}
+.chip.good{border-color:var(--ok); background:color-mix(in srgb, var(--ok) 14%, var(--card)); cursor:default}
+.chip.wrong{border-color:var(--bad); background:var(--bad); color:#fff; cursor:default}
+.chip.wrong small{display:block; font-family:var(--font); font-weight:800; font-size:11px; opacity:.95}
+.checked .file, .checked .chip{cursor:default}
+.desk.drop-hover{box-shadow:0 0 0 4px var(--amber)}
+
+.check-row{display:flex; flex-wrap:wrap; align-items:center; gap:12px}
+.btn.check{background:var(--ok); border-color:var(--ok); color:#fff; font-size:18px; padding:10px 22px}
+.btn.check:disabled{background:var(--card); border-color:var(--line); color:var(--muted); cursor:not-allowed}
+.result{display:none; align-items:center; gap:14px; flex-wrap:wrap; background:var(--card); border:2px solid var(--bad);
+  border-radius:16px; padding:10px 16px; font-weight:800; font-size:clamp(15px,1.5vw,19px)}
+.result.show{display:flex}
+.result b{color:var(--bad)}
+
+/* owl post */
+.owl-post{position:fixed; inset:0; z-index:40; pointer-events:auto; overflow:hidden; cursor:pointer}
+.letter{position:absolute; left:0; top:0; width:92px; height:62px; will-change:transform,opacity;
+  filter:drop-shadow(0 6px 8px rgba(0,0,0,.35))}
+.letter svg{width:100%; height:100%; display:block}
+.letter span{position:absolute; left:4px; right:4px; bottom:4px; text-align:center; font-family:var(--mono);
+  font-size:9px; font-weight:600; color:#5A3E12; white-space:nowrap; overflow:hidden}
+
+.home{display:inline-block; margin-bottom:6px; font-weight:800; font-size:15px; color:var(--blue); text-decoration:none}
+.home:hover{text-decoration:underline}
+/* finish dialog */
+dialog{border:0; border-radius:24px; padding:28px clamp(18px,4vw,40px); max-width:min(520px,92vw); background:var(--card); color:var(--ink); text-align:center}
+dialog::backdrop{background:rgba(26,27,75,.6)}
+dialog h2{margin:6px 0 6px; font-size:30px; font-weight:900}
+.stars{font-size:54px; letter-spacing:6px; line-height:1}
+.stars .off{filter:grayscale(1); opacity:.3}
+.res{display:flex; justify-content:center; gap:12px; margin:16px 0 20px; flex-wrap:wrap}
+.res .stat{min-width:120px}
+dialog p{margin:0; color:var(--muted); font-weight:700}
+
+@media (max-width:1000px){ .baskets{grid-template-columns:repeat(3,1fr); row-gap:40px} }
+@media (max-width:560px){
+  .desk{grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); padding:12px}
+  .file .ficon{width:44px; height:55px}
+  .fname{font-size:11.5px}
+  .baskets{grid-template-columns:repeat(2,1fr)}
+  .b-body{min-height:110px}
+}
+@media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important} }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top">
+    <div>
+      <a class="home" href="./">← Усі ігри</a>
+      <h1>Наведи лад на робочому столі</h1>
+      <p>Розклади всі файли по кошиках, а потім натисни «Перевірити». Можна перетягувати або торкнутися файлу, а потім кошика.</p>
+    </div>
+    <div class="stats" aria-label="Результати">
+      <div class="stat"><b id="sPlaced">0/18</b><span>розкладено</span></div>
+      <div class="stat bad"><b id="sErr">—</b><span>помилки</span></div>
+      <div class="stat"><b id="sTime">0:00</b><span>час</span></div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <button class="btn" id="newGame">Нова гра</button>
+    <span class="ctl-label">Файлів:</span>
+    <div class="seg" id="countSeg" role="group" aria-label="Кількість файлів">
+      <button data-n="2" aria-pressed="false">12</button>
+      <button data-n="3" aria-pressed="true">18</button>
+      <button data-n="4" aria-pressed="false">24</button>
+    </div>
+    <button class="btn" id="hardBtn" aria-pressed="false" title="Іконки стануть однаковими — орієнтуйся лише на розширення">Без підказок-іконок</button>
+    <button class="btn" id="soundBtn" aria-pressed="true">Звук: увімк.</button>
+  </div>
+
+  <div class="check-row">
+    <button class="btn check" id="checkBtn" disabled>Перевірити</button>
+    <div class="msg" id="msg" aria-live="polite"></div>
+  </div>
+  <div class="result" id="result" aria-live="polite">
+    <span id="resultText"></span>
+    <button class="btn primary" id="restart">Почати спочатку</button>
+  </div>
+
+  <section class="desk" id="desk" aria-label="Робочий стіл з файлами"></section>
+  <section class="baskets" id="baskets" aria-label="Кошики"></section>
+</div>
+
+<dialog id="done">
+  <div class="stars"><span>⭐</span><span>⭐</span><span>⭐</span></div>
+  <h2>Ідеально! Усі файли на своїх місцях!</h2>
+  <p>Жодної помилки — справжній комп'ютерний детектив.</p>
+  <div class="res">
+    <div class="stat"><b id="rTime">0:00</b><span>час</span></div>
+    <div class="stat"><b id="rBest">—</b><span>найкращий час</span></div>
+  </div>
+  <button class="btn primary" id="again">Грати ще раз</button>
+</dialog>
+
+<script>
+const CATS = [
+  { id:"text",  name:"Текстові",    color:"#2B579A", icon:"docx" },
+  { id:"table", name:"Таблиці",     color:"#1F7A45", icon:"xlsx" },
+  { id:"pres",  name:"Презентації", color:"#C9472B", icon:"pptx" },
+  { id:"image", name:"Зображення",  color:"#7C4DFF", icon:"jpg"  },
+  { id:"audio", name:"Звук",        color:"#E07B00", icon:"mp3"  },
+  { id:"video", name:"Відео",       color:"#D61F5B", icon:"mp4"  },
+];
+const EXT = {
+  txt:{cat:"text", color:"#6B7591", g:"text"},  docx:{cat:"text", color:"#2B579A", g:"text"},
+  xlsx:{cat:"table", color:"#1F7A45", g:"table"},
+  pptx:{cat:"pres", color:"#C9472B", g:"slide"},
+  jpg:{cat:"image", color:"#7C4DFF", g:"image"}, png:{cat:"image", color:"#1F9BD1", g:"image"},
+  mp3:{cat:"audio", color:"#E07B00", g:"audio"}, wav:{cat:"audio", color:"#C76A00", g:"audio"},
+  mp4:{cat:"video", color:"#D61F5B", g:"video"}, avi:{cat:"video", color:"#A8174A", g:"video"},
+};
+const POOL = {
+  text:["твір.docx","нотатки.txt","лист.docx","вірш.txt","реферат.docx","покупки.txt"],
+  table:["оцінки.xlsx","бюджет.xlsx","погода.xlsx","турнір.xlsx"],
+  pres:["проєкт.pptx","екскурсія.pptx","мій_клас.pptx","природа.pptx"],
+  image:["кіт.jpg","малюнок.png","мапа.png","подорож.jpg","ялинка.jpg","схема.png"],
+  audio:["пісня.mp3","дзвінок.wav","звуки_лісу.mp3","гімн.mp3"],
+  video:["мультфільм.mp4","урок.mp4","свято.mp4","дослід.avi"],
+};
+const CAT_WORD = {text:"текст", table:"таблиця", pres:"презентація", image:"зображення", audio:"звук", video:"відео"};
+
+function glyph(g, c){
+  switch(g){
+    case "text": return `<rect x="11" y="22" width="34" height="4" rx="2" fill="${c}"/><rect x="11" y="30" width="40" height="4" rx="2" fill="${c}"/><rect x="11" y="38" width="36" height="4" rx="2" fill="${c}"/><rect x="11" y="46" width="24" height="4" rx="2" fill="${c}"/>`;
+    case "table": return `<rect x="10" y="21" width="42" height="31" rx="3" fill="#fff" stroke="${c}" stroke-width="3"/><rect x="10" y="21" width="42" height="9" rx="3" fill="${c}"/><path d="M24 21v31M38 21v31M10 40h42" stroke="${c}" stroke-width="2.5"/>`;
+    case "slide": return `<rect x="9" y="21" width="44" height="30" rx="3" fill="${c}" fill-opacity=".15" stroke="${c}" stroke-width="3"/><rect x="16" y="37" width="6" height="9" fill="${c}"/><rect x="26" y="31" width="6" height="15" fill="${c}"/><rect x="36" y="27" width="6" height="19" fill="${c}"/>`;
+    case "image": return `<rect x="9" y="21" width="44" height="31" rx="3" fill="${c}" fill-opacity=".16"/><circle cx="42" cy="29" r="4.5" fill="#FFC233"/><path d="M11 50 L24 33 L32 43 L38 37 L51 50 Z" fill="${c}"/>`;
+    case "audio": return `<path d="M27 25 L48 20 V44" fill="none" stroke="${c}" stroke-width="4" stroke-linejoin="round"/><path d="M27 25 V48" stroke="${c}" stroke-width="4"/><ellipse cx="22" cy="48" rx="6.5" ry="5" fill="${c}"/><ellipse cx="43" cy="44" rx="6.5" ry="5" fill="${c}"/>`;
+    case "video": return `<rect x="9" y="22" width="44" height="29" rx="5" fill="${c}"/><path d="M26 29 V44 L39 36.5 Z" fill="#fff"/><path d="M9 27h44M9 46h44" stroke="#fff" stroke-opacity=".35" stroke-width="2" stroke-dasharray="3 4"/>`;
+  }
+  return "";
+}
+function fileIcon(ext, plain){
+  const t = EXT[ext], c = plain ? "#9AA0C7" : t.color;
+  return `<svg class="ficon" viewBox="0 0 62 78" aria-hidden="true">
+    <path d="M6 2h35l19 19v51a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z" fill="#fff" stroke="#CBD0EC" stroke-width="1.5"/>
+    <path d="M41 2v15a4 4 0 0 0 4 4h15z" fill="${c}" fill-opacity=".35"/>
+    ${plain ? "" : glyph(t.g, c)}
+    ${plain ? "" : `<rect x="9" y="58" width="44" height="13" rx="3" fill="${c}"/><text x="31" y="68" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="9.5" fill="#fff">${ext.toUpperCase()}</text>`}
+  </svg>`;
+}
+function catIcon(cat){ // colored glyph on a white tile for the basket rim
+  return `<svg viewBox="0 0 62 62" aria-hidden="true"><rect x="2" y="6" width="58" height="52" rx="10" fill="#fff"/><g transform="translate(0,-5)">${glyph(EXT[cat.icon].g, cat.color)}</g></svg>`;
+}
+
+const $ = id => document.getElementById(id);
+const desk = $("desk"), basketsEl = $("baskets"), msg = $("msg"), app = $("app");
+let perCat = 3, hard = false, sound = true;
+let files = [], byId = {}, t0 = 0, timer = null, selected = null, checked = false, lastMoved = null;
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+function fmt(s){ return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
+function elapsed(){ return t0 ? Math.floor((Date.now()-t0)/1000) : 0; }
+function placedCount(){ return files.filter(f=>f.place).length; }
+function updStats(){
+  $("sPlaced").textContent = placedCount()+"/"+files.length;
+  $("sTime").textContent = fmt(elapsed());
+  if(!checked){
+    const all = placedCount() === files.length;
+    $("checkBtn").disabled = !all;
+  }
+}
+function startTimer(){ if(t0 || checked) return; t0 = Date.now(); timer = setInterval(updStats, 500); }
+function catName(id){ return CATS.find(c=>c.id===id).name; }
+
+/* ---------- rendering ---------- */
+function renderBaskets(){
+  basketsEl.innerHTML = "";
+  for(const c of CATS){
+    const b = document.createElement("button");
+    b.className = "basket"; b.dataset.cat = c.id; b.style.setProperty("--c", c.color);
+    b.setAttribute("aria-label", "Кошик: "+c.name);
+    b.innerHTML = `<span class="b-rim">${catIcon(c)}<span class="b-name">${c.name}</span><span class="b-count">0</span></span><span class="b-body"></span>`;
+    b.addEventListener("click", e=>{
+      if(e.target.closest(".chip")) return;
+      if(selected && !checked) moveTo(selected, c.id);
+    });
+    basketsEl.appendChild(b);
+  }
+}
+function render(){
+  desk.innerHTML = "";
+  const onDesk = files.filter(f=>!f.place);
+  for(const f of onDesk){
+    const el = document.createElement("button");
+    el.className = "file" + (selected===f.id ? " sel" : "");
+    el.dataset.id = f.id;
+    el.setAttribute("aria-label", "Файл "+f.name);
+    el.innerHTML = fileIcon(f.ext, hard) + `<span class="fname">${f.name.replace(".", "<wbr>.")}</span>`;
+    desk.appendChild(el);
+  }
+  if(!onDesk.length) desk.innerHTML = `<div class="desk-empty">${checked ? "" : "Усі файли в кошиках. Натисни «Перевірити»!"}</div>`;
+  for(const b of basketsEl.children){
+    const body = b.querySelector(".b-body"); body.innerHTML = "";
+    const inside = files.filter(f=>f.place===b.dataset.cat);
+    for(const f of inside){
+      const ch = document.createElement("button");
+      ch.className = "chip" + (f.id===lastMoved ? " new" : "") + (selected===f.id ? " sel" : "");
+      if(checked) ch.className += f.place===f.cat ? " good" : " wrong";
+      ch.dataset.id = f.id;
+      ch.innerHTML = checked
+        ? (f.place===f.cat ? "✓ "+f.name : `✗ ${f.name}<small>має бути: ${catName(f.cat).toLowerCase()}</small>`)
+        : f.name;
+      body.appendChild(ch);
+    }
+    b.querySelector(".b-count").textContent = inside.length;
+  }
+  lastMoved = null;
+  updStats();
+}
+
+function newGame(){
+  stopCelebration();
+  files = []; byId = {};
+  let id = 0;
+  for(const c of CATS) for(const n of shuffle([...POOL[c.id]]).slice(0, perCat)){
+    const ext = n.split(".").pop();
+    const f = {id:String(id++), name:n, ext, cat:EXT[ext].cat, place:null};
+    files.push(f); byId[f.id] = f;
+  }
+  shuffle(files);
+  t0 = 0; clearInterval(timer); selected = null; checked = false;
+  app.classList.remove("checked");
+  $("sErr").textContent = "—";
+  $("checkBtn").textContent = "Перевірити";
+  $("result").classList.remove("show");
+  msg.textContent = ""; msg.className = "msg";
+  renderBaskets(); render();
+}
+
+/* ---------- sound ---------- */
+let actx;
+function tone(freqs, type, vol, step, len){
+  if(!sound) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    freqs.forEach((f,i)=>{
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = type; o.frequency.value = f;
+      const t = actx.currentTime + i*step;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t+0.02); g.gain.exponentialRampToValueAtTime(0.0001, t+len);
+      o.connect(g).connect(actx.destination); o.start(t); o.stop(t+len+0.02);
+    });
+  }catch(e){}
+}
+const sndDrop = ()=>tone([520], "sine", 0.15, 0, 0.1);
+const sndWin  = ()=>tone([523,659,784,1047,1319], "triangle", 0.22, 0.11, 0.35);
+const sndFail = ()=>tone([330,262], "sine", 0.18, 0.18, 0.3);
+
+/* ---------- moving ---------- */
+function moveTo(id, place){   // place: category id or null (desk)
+  const f = byId[id]; if(!f || checked) return;
+  startTimer();
+  f.place = place; lastMoved = id; selected = null; sndDrop();
+  msg.className = "msg";
+  msg.textContent = placedCount() === files.length ? "Усе розкладено! Можна перевіряти." : "";
+  render();
+}
+function select(id){
+  if(checked) return;
+  selected = (selected === id) ? null : id;
+  document.querySelectorAll(".basket").forEach(b=>b.classList.toggle("armed", !!selected));
+  msg.className = "msg";
+  msg.innerHTML = selected ? `Обрано <code>${byId[selected].name}</code> — тепер торкнись кошика${byId[selected].place ? " або робочого столу" : ""}.` : "";
+  render();
+}
+
+/* ---------- pointer drag (files on desk and chips in baskets) ---------- */
+let drag = null, suppressClick = false;
+function basketAt(x, y){
+  for(const b of basketsEl.children){
+    const r = b.getBoundingClientRect();
+    if(x>=r.left && x<=r.right && y>=r.top-24 && y<=r.bottom) return b;
+  }
+  return null;
+}
+function overDesk(x, y){ const r = desk.getBoundingClientRect(); return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom; }
+document.addEventListener("pointerdown", e=>{
+  if(checked || e.button > 0) return;
+  const el = e.target.closest(".file, .chip");
+  if(!el) return;
+  const r = el.getBoundingClientRect();
+  drag = {el, id:el.dataset.id, sx:e.clientX, sy:e.clientY, dx:e.clientX-r.left, dy:e.clientY-r.top, w:r.width, moved:false, ghost:null, over:null};
+});
+window.addEventListener("pointermove", e=>{
+  if(!drag) return;
+  if(!drag.moved){
+    if(Math.hypot(e.clientX-drag.sx, e.clientY-drag.sy) < 7) return;
+    drag.moved = true; startTimer();
+    if(selected){ selected = null; document.querySelectorAll(".sel").forEach(x=>x.classList.remove("sel")); document.querySelectorAll(".armed").forEach(x=>x.classList.remove("armed")); }
+    const g = drag.el.cloneNode(true); g.classList.add("ghost"); g.classList.remove("sel","new");
+    if(drag.el.classList.contains("chip")) g.style.setProperty("--c", getComputedStyle(drag.el).getPropertyValue("--c"));
+    g.style.width = drag.w+"px"; document.body.appendChild(g);
+    drag.ghost = g; drag.el.classList.add("lifting");
+  }
+  e.preventDefault();
+  drag.ghost.style.transform = `translate(${e.clientX-drag.dx}px, ${e.clientY-drag.dy}px) rotate(-4deg)`;
+  const b = basketAt(e.clientX, e.clientY);
+  if(b !== drag.over){ drag.over && drag.over.classList.remove("hover"); b && b.classList.add("hover"); drag.over = b; }
+  desk.classList.toggle("drop-hover", !b && byId[drag.id].place && overDesk(e.clientX, e.clientY));
+}, {passive:false});
+function endDrag(e){
+  if(!drag) return;
+  const d = drag; drag = null;
+  if(!d.moved) return;
+  suppressClick = true; setTimeout(()=>suppressClick=false, 50);
+  d.over && d.over.classList.remove("hover"); desk.classList.remove("drop-hover");
+  const cancel = e.type === "pointercancel";
+  const b = cancel ? null : basketAt(e.clientX, e.clientY);
+  const f = byId[d.id];
+  if(b){ d.ghost.remove(); moveTo(d.id, b.dataset.cat); }
+  else if(!cancel && f.place && overDesk(e.clientX, e.clientY)){ d.ghost.remove(); moveTo(d.id, null); }
+  else {
+    const r = d.el.getBoundingClientRect();
+    d.ghost.classList.add("fly"); d.ghost.style.transform = `translate(${r.left}px, ${r.top}px)`;
+    setTimeout(()=>{ d.ghost.remove(); d.el.classList.remove("lifting"); }, 290);
+  }
+}
+window.addEventListener("pointerup", endDrag);
+window.addEventListener("pointercancel", endDrag);
+document.addEventListener("click", e=>{
+  if(suppressClick || checked) return;
+  const el = e.target.closest(".file, .chip");
+  if(el){ select(el.dataset.id); return; }
+  if(selected && byId[selected].place && e.target.closest("#desk")) moveTo(selected, null);
+});
+document.addEventListener("dragstart", e=>e.preventDefault());
+
+/* ---------- check ---------- */
+$("checkBtn").onclick = ()=>{
+  if(checked || placedCount() !== files.length) return;
+  checked = true; selected = null; clearInterval(timer);
+  app.classList.add("checked");
+  document.querySelectorAll(".armed").forEach(x=>x.classList.remove("armed"));
+  const wrong = files.filter(f=>f.place!==f.cat).length;
+  $("sErr").textContent = wrong;
+  $("checkBtn").disabled = true; $("checkBtn").textContent = "Перевірено";
+  msg.textContent = ""; render();
+  if(wrong === 0){
+    msg.className = "msg ok"; msg.textContent = "Усе правильно!";
+    sndWin(); celebrate();
+  } else {
+    sndFail();
+    $("resultText").innerHTML = `Правильно ${files.length-wrong} з ${files.length}. Помилок: <b>${wrong}</b> — їх позначено червоним у кошиках.`;
+    $("result").classList.add("show");
+  }
+};
+$("restart").onclick = newGame;
+
+/* ---------- owl post: letters fly everywhere ---------- */
+const ENVELOPE = `<svg viewBox="0 0 92 62" aria-hidden="true">
+  <rect x="1.5" y="1.5" width="89" height="59" rx="3" fill="#F3E3BC" stroke="#B89A5A" stroke-width="2"/>
+  <path d="M2 3 L46 35 L90 3" fill="#EAD5A4" stroke="#B89A5A" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M2 59 L36 30 M90 59 L56 30" stroke="#CDB37A" stroke-width="1.5"/>
+  <circle cx="46" cy="34" r="8.5" fill="#B3261E"/><circle cx="46" cy="34" r="5" fill="#8E1B15"/>
+</svg>`;
+let anim = null;
+function stopCelebration(){
+  if(!anim) return;
+  cancelAnimationFrame(anim.raf); clearTimeout(anim.dlg); anim.layer.remove(); anim = null;
+}
+function celebrate(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches){ finish(); return; }
+  const layer = document.createElement("div"); layer.className = "owl-post";
+  layer.title = "Натисни, щоб пропустити";
+  document.body.appendChild(layer);
+  const W = ()=>innerWidth, Hh = ()=>innerHeight;
+  const rectOf = cat => basketsEl.querySelector(`[data-cat="${cat}"]`).getBoundingClientRect();
+  const queue = files.map(f=>({name:f.name, cat:f.place}));
+  const extra = Math.max(55, files.length*3);
+  for(let i=0;i<extra;i++) queue.push({name:null, cat:CATS[i%6].id});
+  const letters = [];
+  const t0a = performance.now();
+  let spawned = 0, last = t0a;
+  // hide chips one by one as their letters take off
+  const chipEls = [...document.querySelectorAll(".chip")];
+
+  function spawn(item, now){
+    const r = rectOf(item.cat);
+    const el = document.createElement("div"); el.className = "letter";
+    el.innerHTML = ENVELOPE + (item.name ? `<span>${item.name}</span>` : "");
+    layer.appendChild(el);
+    const sc = item.name ? 1 : 0.6 + Math.random()*0.5;
+    letters.push({el, x:r.left + r.width/2 - 46 + (Math.random()-.5)*r.width*.5, y:r.top + 50,
+      vx:(Math.random()-.5)*10, vy:-(9 + Math.random()*10), rot:(Math.random()-.5)*30, vr:(Math.random()-.5)*7,
+      ph:Math.random()*6.28, flap:2.5 + Math.random()*3, sc, born:now, life:4200 + Math.random()*2200});
+  }
+  function frame(now){
+    const k = Math.min(3, (now - last)/16.7); last = now;
+    const age = now - t0a;
+    // first the real files take off quickly, then a flurry of extra letters
+    const want = age < 600 ? Math.ceil(files.length * age/600) : files.length + Math.floor((age-600)/2600 * extra);
+    while(spawned < Math.min(want, queue.length)){
+      if(spawned < chipEls.length) chipEls[spawned].style.visibility = "hidden";
+      spawn(queue[spawned++], now);
+    }
+    for(let i = letters.length-1; i>=0; i--){
+      const l = letters[i], a = now - l.born, t = now/1000;
+      l.vx += Math.sin(t*1.7 + l.ph) * 0.45 * k;
+      l.vy += (Math.cos(t*1.3 + l.ph*1.3) * 0.38 - 0.06) * k;
+      l.vx *= Math.pow(0.985, k); l.vy *= Math.pow(0.985, k);
+      l.x += l.vx * k; l.y += l.vy * k; l.rot += l.vr * k * 0.6;
+      if(l.y < -90){ l.y = Hh() + 40; l.x = Math.random()*W(); l.vy = -(4 + Math.random()*6); }
+      if(l.x < -110) l.x = W() + 20; else if(l.x > W() + 110) l.x = -100;
+      const flip = Math.cos(a/1000 * l.flap * Math.PI);
+      const op = a > l.life - 700 ? Math.max(0, (l.life - a)/700) : Math.min(1, a/150);
+      l.el.style.opacity = op;
+      l.el.style.transform = `translate(${l.x}px, ${l.y}px) rotate(${l.rot}deg) scale(${l.sc}, ${l.sc*(0.35 + 0.65*Math.abs(flip))})`;
+      if(a > l.life){ l.el.remove(); letters.splice(i,1); }
+    }
+    if(spawned >= queue.length && !letters.length){ stopCelebration(); return; }
+    anim.raf = requestAnimationFrame(frame);
+  }
+  anim = {layer, raf:requestAnimationFrame(frame), dlg:setTimeout(finish, 4200)};
+  layer.addEventListener("click", ()=>{ stopCelebration(); finish(); });
+}
+
+function finish(){
+  if($("done").open) return;
+  const s = elapsed();
+  $("rTime").textContent = fmt(s);
+  const key = "best-"+files.length+(hard?"-hard":"");
+  let best = null;
+  try{ best = Number(localStorage.getItem(key)) || null; if(!best || s<best){ best = s; localStorage.setItem(key, String(s)); } }catch(e){}
+  $("rBest").textContent = best ? fmt(best) : "—";
+  $("done").showModal();
+}
+$("again").onclick = ()=>{ $("done").close(); newGame(); };
+$("done").addEventListener("close", ()=>{ stopCelebration(); });
+
+/* ---------- controls ---------- */
+$("newGame").onclick = newGame;
+$("countSeg").addEventListener("click", e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  perCat = Number(b.dataset.n);
+  $("countSeg").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b));
+  newGame();
+});
+$("hardBtn").onclick = ()=>{ hard = !hard; $("hardBtn").setAttribute("aria-pressed", hard); render(); };
+$("soundBtn").onclick = ()=>{ sound = !sound; $("soundBtn").setAttribute("aria-pressed", sound); $("soundBtn").textContent = "Звук: "+(sound?"увімк.":"вимк."); };
+
+newGame();
+</script>
+</body>
+</html>
