@@ -6,8 +6,7 @@
    Поки адреса порожня, працює ДЕМО-РЕЖИМ: кімнати й результати
    зберігаються лише в цьому браузері (зручно, щоб спробувати).
    ========================================================================== */
-const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9Ofdi6yj_p-5VEMKZLy4Gtye87kJSw53D5PzHpdptr_nZwbVd/exec";
-
+const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9Ofdi6yj_p-5VEMKZLy4Gtye87kJSw53D5PzHpdptr_nZwbVd/exec"; 
 (function () {
   "use strict";
 
@@ -16,7 +15,8 @@ const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9
     sorting:   { title: "Наведи лад на робочому столі", file: "sortuvannia-failiv.html",     icon: "🗂️" },
     detective: { title: "Юний кібердетектив",           file: "kiberdetektyv.html",          icon: "🕵️" }
   };
-  const demo = !KIMNATA_API;
+  const demo = !KIMNATA_API.trim();
+  let K_diagnose = async () => "";
 
   /* ---------------- демо-сервер у localStorage ---------------- */
   const LS = "kimnata-demo-db";
@@ -60,14 +60,32 @@ const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9
     let res;
     if (READS.includes(p.action) && !p.key) {
       const q = new URLSearchParams(Object.assign({}, p, { _: Date.now() }));
-      res = await fetch(KIMNATA_API + "?" + q.toString());
+      res = await fetch(KIMNATA_API.trim() + "?" + q.toString());
     } else {
       // text/plain — без зайвих перевірок CORS, Apps Script це приймає
-      res = await fetch(KIMNATA_API, { method: "POST", body: JSON.stringify(p) });
+      res = await fetch(KIMNATA_API.trim(), { method: "POST", body: JSON.stringify(p) });
     }
     if (!res.ok) throw new Error("Сервер не відповідає (" + res.status + ")");
     return res.json();
   }
+
+  /* діагностика: що не так з адресою чи розгортанням */
+  K_diagnose = async function () {
+    const u = KIMNATA_API.trim();
+    if (!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(u)) {
+      if (/\/dev$/.test(u)) return "Адреса закінчується на /dev — це тестова адреса. Потрібна адреса з «Розгорнути → Керувати розгортаннями», що закінчується на /exec.";
+      if (/script\.google\.com\/(home|d\/)/.test(u)) return "Це адреса редактора скрипта, а не веб-застосунку. Потрібна «URL-адреса веб-застосунку», що закінчується на /exec.";
+      return "Адреса в kimnata.js має вигляд https://script.google.com/macros/s/…/exec. Перевірте, чи скопійовано її повністю, без пробілів.";
+    }
+    try {
+      const r = await fetch(u + "?action=rooms&_=" + Date.now());
+      const t = await r.text();
+      try { JSON.parse(t); } catch (e) { return "Google повертає не дані, а сторінку. Найімовірніше, у розгортанні вибрано доступ не «Усі». Розгорнути → Керувати розгортаннями → олівець → «Хто має доступ: Усі» → Нова версія → Розгорнути."; }
+      return "Зв'язок із таблицею є. Спробуйте ще раз або оновіть сторінку (Ctrl+F5).";
+    } catch (e) {
+      return "Google не пускає сторінку до скрипта. Перевірте: 1) «Хто має доступ: Усі» (не «Усі, хто має акаунт Google»); 2) ви дозволили доступ під час першого розгортання; 3) після змін коду створено «Нову версію». Відкрийте в новій вкладці " + u + "?action=rooms — має з'явитися {\"ok\":true,…}.";
+    }
+  };
 
   function link(room) {
     const g = GAMES[room.game];
@@ -120,6 +138,7 @@ const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9
   const K = {
     games: GAMES, demo, call, link, settingsText, cleanName,
     join: null,   // {code, name, room}
+    diagnose: () => K_diagnose(),
     attach
   };
   window.Kimnata = K;
