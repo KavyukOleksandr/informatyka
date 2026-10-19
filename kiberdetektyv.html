@@ -312,11 +312,14 @@
     h1{font-size:22px;}
     .badge{flex:1 1 100px;}
   }
+  #kimnata-bar{margin-bottom:16px;}
 </style>
+<script src="kimnata.js"></script>
 </head>
 <body>
 <div id="app">
   <a class="home" href="./">← Усі ігри</a>
+  <div id="kimnata-bar"></div>
   <div class="brand">🕵️ ЮНИЙ <span>КІБЕРДЕТЕКТИВ</span> · 5 клас</div>
   <div id="boardWrap"></div>
   <div id="screen" class="card"></div>
@@ -367,6 +370,11 @@
 
   function submitResults(){
     if (state.submitted) return;
+    if (window.Kimnata){
+      var kt=0, km=0;
+      CASES.forEach(function(c){ kt += state.scores[c.n].c; km += state.scores[c.n].t; });
+      Kimnata.report({score:kt, max:km, pct: km ? Math.round(kt/km*100) : 0, secs:state.elapsedSeconds});
+    }
     if (!FORM_CONFIG.formActionUrl) return;
     state.submitted = true;
     var total=0, max=0;
@@ -916,6 +924,12 @@
   }, 1000);
 
   render();
+
+  if (window.Kimnata) Kimnata.attach("detective", {
+    onJoin: function(room, name){
+      if (state.screen === "intro"){ state.studentName = name; render(); }
+    }
+  });
 })();
 </script>
 </body>

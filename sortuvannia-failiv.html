@@ -165,7 +165,10 @@ dialog p{margin:0; color:var(--muted); font-weight:700}
   .b-body{min-height:110px}
 }
 @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important} }
+.seg button:disabled,.btn:disabled#hardBtn{cursor:not-allowed}
+.lock-note{font-size:13px; font-weight:800; color:var(--violet)}
 </style>
+<script src="kimnata.js"></script>
 </head>
 <body>
 <div class="app" id="app">
@@ -182,6 +185,8 @@ dialog p{margin:0; color:var(--muted); font-weight:700}
     </div>
   </header>
 
+  <div id="kimnata-bar"></div>
+
   <div class="controls">
     <button class="btn" id="newGame">Нова гра</button>
     <span class="ctl-label">Файлів:</span>
@@ -191,6 +196,7 @@ dialog p{margin:0; color:var(--muted); font-weight:700}
       <button data-n="4" aria-pressed="false">24</button>
     </div>
     <button class="btn" id="hardBtn" aria-pressed="false" title="Іконки стануть однаковими — орієнтуйся лише на розширення">Без підказок-іконок</button>
+    <span class="lock-note" id="lockNote" hidden>🔒 Налаштування задав учитель</span>
     <button class="btn" id="soundBtn" aria-pressed="true">Звук: увімк.</button>
   </div>
 
@@ -461,6 +467,7 @@ $("checkBtn").onclick = ()=>{
   const wrong = files.filter(f=>f.place!==f.cat).length;
   $("sErr").textContent = wrong;
   $("checkBtn").disabled = true; $("checkBtn").textContent = "Перевірено";
+  if(window.Kimnata) Kimnata.report({correct:files.length-wrong, total:files.length, wrong, secs:elapsed()});
   msg.textContent = ""; render();
   if(wrong === 0){
     msg.className = "msg ok"; msg.textContent = "Усе правильно!";
@@ -565,7 +572,22 @@ $("countSeg").addEventListener("click", e=>{
 $("hardBtn").onclick = ()=>{ hard = !hard; $("hardBtn").setAttribute("aria-pressed", hard); render(); };
 $("soundBtn").onclick = ()=>{ sound = !sound; $("soundBtn").setAttribute("aria-pressed", sound); $("soundBtn").textContent = "Звук: "+(sound?"увімк.":"вимк."); };
 
+function lockSettings(on){
+  $("countSeg").querySelectorAll("button").forEach(b=>b.disabled = on);
+  $("hardBtn").disabled = on; $("lockNote").hidden = !on;
+}
 newGame();
+if(window.Kimnata) Kimnata.attach("sorting", {
+  onJoin(room){
+    const s = room.settings || {};
+    perCat = [2,3,4].includes(Number(s.count)) ? Number(s.count) : 3;
+    hard = !!s.hard;
+    $("countSeg").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", Number(x.dataset.n)===perCat));
+    $("hardBtn").setAttribute("aria-pressed", hard);
+    lockSettings(true); newGame();
+  },
+  onLeave(){ lockSettings(false); }
+});
 </script>
 </body>
 </html>

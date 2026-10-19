@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Клавіатурний тренажер</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap&subset=cyrillic" rel="stylesheet">
+<style>
+:root{
+  --page:#EEF1FF; --ink:#1A1B4B; --muted:#585C8C; --card:#FFFFFF; --line:#D6DBF5; --soft:#F4F6FF;
+  --desk:#2B1F7A; --blue:#2F6BFF; --violet:#7C4DFF; --amber:#FFC233; --ok:#16A34A; --bad:#E5484D;
+  --done:#9AA0C7; --key:#FFFFFF; --key-ink:#1A1B4B;
+  --f1:#FFD6E0; --f2:#FFE7C2; --f3:#FFF6B8; --f4:#D3F5D0; --f5:#CDEBFF; --f6:#E3D9FF; --f7:#E2E6F3;
+  --font:"Nunito","Segoe UI",Arial,system-ui,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --page:#13113A; --ink:#ECEBFF; --muted:#AEADDA; --card:#221F58; --line:#3A3680; --soft:#1A1749;
+    --done:#6E6CA8; --key:#2C2868; --key-ink:#ECEBFF;
+    --f1:#5A2840; --f2:#5A3E20; --f3:#4E4A1C; --f4:#21492A; --f5:#1E3D5C; --f6:#3B2E6E; --f7:#33355A;
+  }
+}
+:root[data-theme="dark"]{
+  --page:#13113A; --ink:#ECEBFF; --muted:#AEADDA; --card:#221F58; --line:#3A3680; --soft:#1A1749;
+  --done:#6E6CA8; --key:#2C2868; --key-ink:#ECEBFF;
+  --f1:#5A2840; --f2:#5A3E20; --f3:#4E4A1C; --f4:#21492A; --f5:#1E3D5C; --f6:#3B2E6E; --f7:#33355A;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%; scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0; min-height:100%; background:var(--page); color:var(--ink); font-family:var(--font)}
+button{font:inherit; color:inherit}
+:focus-visible{outline:3px solid var(--amber); outline-offset:3px}
+
+.app{max-width:1100px; margin:0 auto; padding:18px clamp(12px,3vw,32px) 40px; display:flex; flex-direction:column; gap:16px}
+.home{font-weight:800; font-size:15px; color:var(--blue); text-decoration:none}
+.home:hover{text-decoration:underline}
+h1{margin:4px 0 0; font-size:clamp(26px,3.4vw,38px); font-weight:900; line-height:1.1}
+.sub{margin:4px 0 0; color:var(--muted); font-weight:700}
+
+.settings{display:flex; flex-wrap:wrap; gap:12px 22px; align-items:center}
+.group{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.lbl{font-size:14px; font-weight:800; color:var(--muted)}
+.seg{display:inline-flex; flex-wrap:wrap; border:2px solid var(--line); border-radius:12px; overflow:hidden; background:var(--card)}
+.seg button{border:0; background:none; padding:8px 13px; font-weight:800; cursor:pointer; font-size:15px}
+.seg button + button{border-left:2px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--blue); color:#fff}
+
+/* stats */
+.stats{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+.stat{background:var(--card); border:2px solid var(--line); border-radius:14px; padding:8px 12px; text-align:center}
+.stat b{display:block; font-size:clamp(22px,2.6vw,30px); font-weight:900; line-height:1.1; font-variant-numeric:tabular-nums}
+.stat span{font-size:13px; color:var(--muted); font-weight:800}
+.stat.err b{color:var(--bad)}
+
+/* trainer card */
+.trainer{position:relative; background:var(--card); border:2px solid var(--line); border-radius:22px; padding:clamp(16px,3vw,28px)}
+.progress{height:8px; background:var(--soft); border-radius:8px; overflow:hidden; margin-bottom:16px}
+.progress i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--violet)); border-radius:8px; transition:width .15s}
+.text{font-family:var(--mono); font-size:clamp(20px,2.6vw,28px); line-height:1.75; white-space:pre-wrap; overflow-wrap:break-word;
+  max-height:calc(1.75em * 4); overflow:hidden; position:relative; cursor:text; user-select:none; -webkit-user-select:none}
+.text span{border-radius:5px; padding:1px 0}
+.text .ok{color:var(--done)}
+.text .fixed{color:var(--done); text-decoration:underline wavy var(--bad); text-decoration-thickness:1.5px; text-underline-offset:5px}
+.text .cur{background:var(--amber); color:#1A1B4B; box-shadow:0 0 0 2px var(--amber)}
+.text .cur.wrong{background:var(--bad); color:#fff; box-shadow:0 0 0 2px var(--bad); animation:shake .25s}
+@keyframes shake{0%,100%{transform:translateX(0)}30%{transform:translateX(-3px)}70%{transform:translateX(3px)}}
+.hint{min-height:28px; margin-top:12px; font-weight:800; color:var(--muted); font-size:clamp(15px,1.6vw,18px)}
+.hint.warn{color:var(--bad)}
+.hint kbd{font-family:var(--mono); background:var(--soft); border:1.5px solid var(--line); border-bottom-width:3px; border-radius:6px; padding:0 7px; color:var(--ink)}
+
+.cover{position:absolute; inset:0; border-radius:20px; display:none; place-items:center; text-align:center; padding:20px;
+  background:color-mix(in srgb, var(--card) 82%, transparent); backdrop-filter:blur(2px); cursor:pointer}
+.cover.show{display:grid}
+.cover b{display:block; font-size:clamp(20px,2.4vw,26px); font-weight:900}
+.cover span{color:var(--muted); font-weight:700}
+#typer{position:absolute; left:0; top:0; width:1px; height:1px; opacity:0; border:0; padding:0; font-size:16px}
+
+.actions{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
+.btn{border:2px solid var(--line); background:var(--card); border-radius:12px; padding:8px 16px; font-weight:800; font-size:15px; cursor:pointer}
+.btn.primary{background:var(--blue); border-color:var(--blue); color:#fff}
+
+/* result */
+.result{display:none; text-align:center; padding:6px 0}
+.result.show{display:block}
+.result .stars{font-size:46px; letter-spacing:6px; line-height:1}
+.result .stars .off{filter:grayscale(1); opacity:.3}
+.result h2{margin:8px 0 4px; font-size:clamp(24px,3vw,32px); font-weight:900}
+.result p{margin:0 0 14px; color:var(--muted); font-weight:700}
+.result .actions{justify-content:center}
+
+/* keyboard */
+.kbd{display:flex; flex-direction:column; gap:5px; background:var(--card); border:2px solid var(--line); border-radius:22px; padding:14px; user-select:none}
+.row{display:flex; gap:5px}
+.key{flex:var(--w,1) 1 0; min-width:0; height:clamp(34px,4.6vw,48px); border-radius:9px; background:var(--key); color:var(--key-ink);
+  border:1.5px solid var(--line); border-bottom-width:4px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-weight:700; font-size:clamp(12px,1.5vw,17px); position:relative; transition:transform .06s}
+.key.mod{font-family:var(--font); font-size:clamp(10px,1.1vw,13px); color:var(--muted); font-weight:800}
+.key.f1{background:var(--f1)} .key.f2{background:var(--f2)} .key.f3{background:var(--f3)} .key.f4{background:var(--f4)}
+.key.f5{background:var(--f5)} .key.f6{background:var(--f6)} .key.f7{background:var(--f7)}
+.key.next{background:var(--amber) !important; color:#1A1B4B; border-color:#C98F00; transform:translateY(-2px); box-shadow:0 6px 14px rgba(255,194,51,.55)}
+.key.press{transform:translateY(2px)}
+.key.home::after{content:""; position:absolute; bottom:6px; width:12px; height:2.5px; border-radius:2px; background:currentColor; opacity:.55}
+.legend{display:flex; flex-wrap:wrap; gap:6px 14px; justify-content:center; margin-top:6px; font-size:13px; font-weight:800; color:var(--muted)}
+.legend i{display:inline-block; width:14px; height:14px; border-radius:4px; vertical-align:-2px; margin-right:5px; border:1px solid var(--line)}
+
+/* table */
+.results{background:var(--card); border:2px solid var(--line); border-radius:22px; padding:clamp(16px,3vw,24px)}
+.results h2{margin:0 0 2px; font-size:24px; font-weight:900}
+.results .note{margin:0 0 14px; color:var(--muted); font-weight:700; font-size:14px}
+.tbl-wrap{overflow-x:auto}
+table{width:100%; border-collapse:collapse; font-size:16px; min-width:620px}
+th{text-align:left; font-size:13px; color:var(--muted); font-weight:900; padding:8px 10px; border-bottom:2px solid var(--line); white-space:nowrap}
+td{padding:9px 10px; border-bottom:1px solid var(--line); font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap}
+td.num, th.num{text-align:right}
+tr.best td{background:color-mix(in srgb, var(--amber) 22%, var(--card))}
+tr.last td{font-weight:900}
+.empty{color:var(--muted); font-weight:700; padding:14px 0}
+
+@media (max-width:720px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .kbd{padding:8px; gap:4px} .row{gap:3px}
+  .key{border-radius:6px; border-bottom-width:3px}
+  .key.mod{font-size:9px}
+}
+@media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important} }
+.seg button:disabled{cursor:not-allowed; opacity:.55}
+.seg button[aria-pressed="true"]:disabled{opacity:1}
+.lock-note{font-size:13px; font-weight:800; color:var(--violet)}
+</style>
+<script src="kimnata.js"></script>
+</head>
+<body>
+<div class="app">
+  <div>
+    <a class="home" href="./">← Усі ігри</a>
+    <h1>Клавіатурний тренажер</h1>
+    <p class="sub">Друкуй текст, дивлячись на екран, а не на клавіші. Жовтим підсвічено літеру, яку треба натиснути.</p>
+  </div>
+
+  <div id="kimnata-bar"></div>
+
+  <div class="settings">
+    <div class="group"><span class="lbl">Мова:</span>
+      <div class="seg" id="langSeg" role="group" aria-label="Мова тексту">
+        <button data-v="ua" aria-pressed="true">Українська</button>
+        <button data-v="en" aria-pressed="false">English</button>
+      </div>
+    </div>
+    <div class="group"><span class="lbl">Рівень:</span>
+      <div class="seg" id="levelSeg" role="group" aria-label="Рівень складності">
+        <button data-v="1" aria-pressed="true">1 · Основний ряд</button>
+        <button data-v="2" aria-pressed="false">2 · Слова</button>
+        <button data-v="3" aria-pressed="false">3 · Речення</button>
+        <button data-v="4" aria-pressed="false">4 · Текст</button>
+      </div>
+    </div>
+    <span class="lock-note" id="lockNote" hidden>🔒 Мову й рівень задав учитель для кімнати</span>
+  </div>
+
+  <div class="stats" aria-live="off">
+    <div class="stat"><b id="sTime">0:00</b><span>час</span></div>
+    <div class="stat"><b id="sSpeed">0</b><span>знаків за хвилину</span></div>
+    <div class="stat"><b id="sAcc">100%</b><span>точність</span></div>
+    <div class="stat err"><b id="sErr">0</b><span>помилки</span></div>
+  </div>
+
+  <section class="trainer" id="trainer">
+    <div id="work">
+      <div class="progress"><i id="bar"></i></div>
+      <div class="text" id="text" aria-label="Текст для друку"></div>
+      <div class="hint" id="hint" aria-live="polite"></div>
+      <div class="actions">
+        <button class="btn" id="restartBtn">Почати знову (Esc)</button>
+        <button class="btn" id="newBtn">Інший текст</button>
+      </div>
+    </div>
+    <div class="result" id="result" aria-live="polite">
+      <div class="stars" id="stars"></div>
+      <h2 id="resTitle">Готово!</h2>
+      <p id="resText"></p>
+      <div class="actions">
+        <button class="btn primary" id="nextTextBtn">Новий текст (Enter)</button>
+        <button class="btn" id="againBtn">Цей самий ще раз</button>
+        <button class="btn" id="levelUpBtn">Наступний рівень →</button>
+      </div>
+    </div>
+    <div class="cover" id="cover"><div><b>Натисни тут і почни друкувати</b><span>Час піде з першої натиснутої клавіші</span></div></div>
+    <input id="typer" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Поле для друку">
+  </section>
+
+  <section class="kbd" id="kbd" aria-hidden="true"></section>
+
+  <section class="results">
+    <h2>Мої результати</h2>
+    <p class="note">Результати видно лише до оновлення чи закриття сторінки. ⭐ — найкраща швидкість.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>№</th><th>Мова</th><th>Рівень</th><th class="num">Час</th><th class="num">Швидкість, зн/хв</th><th class="num">Точність</th><th class="num">Помилки</th></tr></thead>
+        <tbody id="tbody"><tr><td colspan="7" class="empty">Тут з'являться твої спроби.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ===================== ТЕКСТИ ===================== */
+const TEXTS = {
+  ua: {
+    home: "фівапролдж",
+    words: ["кіт","дім","ліс","сонце","школа","книга","вікно","парта","зошит","ручка","мама","тато","друг","море",
+      "річка","хліб","яблуко","олівець","клавіша","екран","миша","файл","папка","малюнок","текст","урок","весна",
+      "квітка","пісня","зірка","гора","поле","місто","вулиця","сестра","брат","сніг","вітер","кавун","малина"],
+    sentences: ["Мій кіт любить тепле молоко.","Сьогодні на уроці ми вчимося друкувати.","Улітку ми їздили до моря.",
+      "Клавіатура допомагає вводити текст.","Мишка лежить біля ноутбука.","Влітку дні довгі, а ночі короткі.",
+      "Я зберіг малюнок у свою папку.","Мама спекла смачний пиріг.","У нашому класі двадцять п'ять учнів.",
+      "Друзі разом граються у дворі.","Восени листя падає з дерев.","Брат читає цікаву книгу."],
+    texts: [
+      "Комп'ютер допомагає нам навчатися, грати й спілкуватися. Щоб швидко друкувати, тримай пальці на основному ряді клавіатури. Не дивись на клавіші, дивись на екран! Спочатку буде повільно, але з часом усе вийде.",
+      "Восени ліс стає жовтим і червоним. Листя падає з дерев, а птахи летять у теплі краї. Скільки кольорів ти бачиш у парку? Візьми олівці й намалюй осінь!",
+      "Наш клас готує проєкт про рідне місто. Ми робимо фото, пишемо тексти й створюємо презентацію. Кожен учень має своє завдання. Разом у нас усе вийде!",
+      "У 5-А класі навчається 27 учнів. Вони люблять інформатику, бо на уроках можна малювати, програмувати й грати в навчальні ігри. Хто з них надрукує цей текст найшвидше?"
+    ]
+  },
+  en: {
+    home: "asdfghjkl",
+    words: ["cat","dog","sun","book","school","pen","desk","tree","bird","fish","milk","home","friend","apple","water",
+      "green","happy","music","game","mouse","screen","file","folder","lesson","red","blue","rain","snow","cake","ball"],
+    sentences: ["I like to read books.","My cat sleeps on the sofa.","We learn to type at school.","The sun is bright today.",
+      "Tom has a red bike.","Practice makes perfect.","My friend lives near the park.","We play games after lessons.",
+      "The dog runs in the garden.","Anna draws a big house."],
+    texts: [
+      "Typing is a useful skill. Keep your fingers on the home row and look at the screen, not at the keys. At first you will be slow, but practice makes perfect!",
+      "Our class has 27 students. We like computer science, because we can draw, play and write programs. Who can type this text the fastest?",
+      "In autumn the trees turn yellow and red. Birds fly to warm countries, and the days get shorter. What colours can you see outside today?"
+    ]
+  }
+};
+const LEVEL_NAMES = {1:"Основний ряд", 2:"Слова", 3:"Речення", 4:"Текст"};
+const LANG_NAMES = {ua:"Українська", en:"English"};
+
+/* ===================== КЛАВІАТУРА ===================== */
+// [en, ua, finger, width]; finger: 1 мізинець,2 безіменний,3 середній,4 вказівний (ліва рука: L, права: R)
+const ROWS = [
+  [["`","'","L1"],["1","1","L1"],["2","2","L2"],["3","3","L3"],["4","4","L4"],["5","5","L4"],["6","6","R4"],["7","7","R4"],["8","8","R3"],["9","9","R2"],["0","0","R1"],["-","-","R1"],["=","=","R1"],["⌫","⌫","",2,"mod"]],
+  [["Tab","Tab","",1.5,"mod"],["q","й","L1"],["w","ц","L2"],["e","у","L3"],["r","к","L4"],["t","е","L4"],["y","н","R4"],["u","г","R4"],["i","ш","R3"],["o","щ","R2"],["p","з","R1"],["[","х","R1"],["]","ї","R1"],["\\","\\","R1",1.5]],
+  [["Caps","Caps","",1.75,"mod"],["a","ф","L1"],["s","і","L2"],["d","в","L3"],["f","а","L4",1,"home"],["g","п","L4"],["h","р","R4"],["j","о","R4",1,"home"],["k","л","R3"],["l","д","R2"],[";","ж","R1"],["'","є","R1"],["Enter","Enter","",2.25,"mod"]],
+  [["Shift","Shift","",2.25,"mod","ShiftL"],["z","я","L1"],["x","ч","L2"],["c","с","L3"],["v","м","L4"],["b","и","L4"],["n","т","R4"],["m","ь","R4"],[",","б","R3"],[".","ю","R2"],["/",".","R1"],["Shift","Shift","",2.75,"mod","ShiftR"]],
+  [["","","",4,"spacer"],["Пробіл","Пробіл","T",7,"space"],["","","",4,"spacer"]]
+];
+const SHIFTED = {
+  en: {"`":"~","1":"!","2":"@","3":"#","4":"$","5":"%","6":"^","7":"&","8":"*","9":"(","0":")","-":"_","=":"+","[":"{","]":"}","\\":"|",";":":","'":"\"",",":"<",".":">","/":"?"},
+  ua: {"'":"₴","1":"!","2":"\"","3":"№","4":";","5":"%","6":":","7":"?","8":"*","9":"(","0":")","-":"_","=":"+","\\":"/",".":","}
+};
+const FINGER_CLASS = {L1:"f1",L2:"f2",L3:"f3",L4:"f4",R4:"f5",R3:"f6",R2:"f2",R1:"f1",T:"f7"};
+const FINGER_NAME = {L1:"лівий мізинець",L2:"лівий безіменний",L3:"лівий середній",L4:"лівий вказівний",
+  R4:"правий вказівний",R3:"правий середній",R2:"правий безіменний",R1:"правий мізинець",T:"великий палець"};
+
+/* ===================== СТАН ===================== */
+const $ = id => document.getElementById(id);
+let lang = "ua", level = 1;
+let text = "", pos = 0, errors = 0, errAt = new Set(), t0 = 0, tick = null, finished = false;
+let lastTextIdx = -1;
+const attempts = [];
+let keyMap = {};   // char -> {el, shift, finger}
+
+let rng = Math.random, textNo = 0;
+function rand(n){ return Math.floor(rng()*n); }
+function pick(arr, n){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=rand(i+1); [a[i],a[j]]=[a[j],a[i]];} return a.slice(0,n); }
+function fmt(s){ return Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0"); }
+
+function makeText(){
+  const T = TEXTS[lang];
+  if(level === 1){
+    const g = [];
+    for(let i=0;i<14;i++){ let w=""; const len=2+rand(3); for(let k=0;k<len;k++) w += T.home[rand(T.home.length)]; g.push(w); }
+    return g.join(" ");
+  }
+  if(level === 2) return pick(T.words, 10).join(" ");
+  if(level === 3) return pick(T.sentences, 3).join(" ");
+  let i; do{ i = rand(T.texts.length); } while(T.texts.length > 1 && i === lastTextIdx);
+  lastTextIdx = i;
+  return T.texts[i];
+}
+
+/* ---------- keyboard ---------- */
+function buildKeyboard(){
+  const kbd = $("kbd"); kbd.innerHTML = ""; keyMap = {};
+  const li = lang === "en" ? 0 : 1;
+  for(const row of ROWS){
+    const r = document.createElement("div"); r.className = "row";
+    for(const k of row){
+      const [en, ua, finger, w=1, kind="", id=""] = k;
+      const el = document.createElement("div");
+      el.className = "key" + (kind==="mod"?" mod":"") + (kind==="home"?" home":"") + (finger ? " "+FINGER_CLASS[finger] : "");
+      el.style.setProperty("--w", w);
+      if(kind === "spacer"){ el.style.visibility = "hidden"; r.appendChild(el); continue; }
+      const base = li ? ua : en;
+      el.textContent = (kind==="mod"||kind==="space") ? base : base.toUpperCase();
+      if(id) el.id = "k"+id;
+      if(kind === "space"){ keyMap[" "] = {el, shift:false, finger:"T"}; el.textContent = ""; }
+      else if(kind !== "mod"){
+        keyMap[base] = {el, shift:false, finger};
+        if(base.toUpperCase() !== base) keyMap[base.toUpperCase()] = {el, shift:true, finger};
+        const sh = SHIFTED[lang][base];
+        if(sh && !keyMap[sh]) keyMap[sh] = {el, shift:true, finger};
+      }
+      r.appendChild(el);
+    }
+    kbd.appendChild(r);
+  }
+  const lg = document.createElement("div"); lg.className = "legend";
+  lg.innerHTML = [["f1","мізинці"],["f2","безіменні"],["f3","лівий середній"],["f4","лівий вказівний"],["f5","правий вказівний"],["f6","правий середній"],["f7","великий палець"]]
+    .map(([c,n])=>`<span><i style="background:var(--${c})"></i>${n}</span>`).join("");
+  kbd.appendChild(lg);
+}
+function highlight(){
+  document.querySelectorAll(".key.next").forEach(k=>k.classList.remove("next"));
+  if(finished || pos >= text.length) return;
+  const ch = text[pos], info = keyMap[ch];
+  if(!info) return;
+  info.el.classList.add("next");
+  if(info.shift){
+    const left = info.finger && info.finger.startsWith("L");
+    $(left ? "kShiftR" : "kShiftL").classList.add("next");
+  }
+}
+
+/* ---------- text ---------- */
+function renderText(){
+  const box = $("text"); box.innerHTML = "";
+  for(let i=0;i<text.length;i++){
+    const s = document.createElement("span"); s.textContent = text[i]; box.appendChild(s);
+  }
+  paint();
+}
+function paint(wrong){
+  const spans = $("text").children;
+  for(let i=0;i<spans.length;i++){
+    spans[i].className = i < pos ? (errAt.has(i) ? "fixed" : "ok") : i === pos ? "cur"+(wrong?" wrong":"") : "";
+  }
+  const cur = spans[pos];
+  if(cur){ // keep current line visible
+    const box = $("text"), lineH = parseFloat(getComputedStyle(box).lineHeight);
+    box.scrollTop = Math.max(0, cur.offsetTop - box.offsetTop - lineH);
+  }
+  $("bar").style.width = (text.length ? pos/text.length*100 : 0) + "%";
+  highlight(); hintFor();
+}
+function hintFor(warn){
+  const h = $("hint");
+  if(warn){ h.className = "hint warn"; h.innerHTML = warn; return; }
+  h.className = "hint";
+  if(finished || pos >= text.length){ h.textContent = ""; return; }
+  const ch = text[pos], info = keyMap[ch];
+  const name = ch === " " ? "пробіл" : ch;
+  if(!info){ h.innerHTML = `Натисни <kbd>${name}</kbd>`; return; }
+  const sh = info.shift ? ` + <kbd>Shift</kbd> ${info.finger.startsWith("L") ? "правою" : "лівою"} рукою` : "";
+  h.innerHTML = `Натисни <kbd>${name}</kbd>${sh} — ${FINGER_NAME[info.finger]}`;
+}
+
+/* ---------- stats ---------- */
+function elapsed(){ return t0 ? (Date.now()-t0)/1000 : 0; }
+function speed(){ const s = elapsed(); return s > 1 ? Math.round(pos / s * 60) : 0; }
+function accuracy(){ return text.length ? Math.max(0, Math.round((1 - errors/Math.max(pos,1))*100)) : 100; }
+function updStats(){
+  $("sTime").textContent = fmt(elapsed());
+  $("sSpeed").textContent = speed();
+  $("sAcc").textContent = (pos ? accuracy() : 100) + "%";
+  $("sErr").textContent = errors;
+}
+
+/* ---------- flow ---------- */
+function start(newText){
+  if(newText || !text){
+    if(window.Kimnata && Kimnata.join) rng = Kimnata.seeded(Kimnata.join.code+":"+lang+":"+level+":"+(textNo++));
+    text = makeText();
+  }
+  pos = 0; errors = 0; errAt = new Set(); t0 = 0; finished = false; clearInterval(tick);
+  $("work").hidden = false; $("result").classList.remove("show");
+  renderText(); updStats();
+  focusTyper();
+}
+function focusTyper(){ $("typer").value = ""; $("typer").focus({preventScroll:true}); updateCover(); }
+function updateCover(){ $("cover").classList.toggle("show", document.activeElement !== $("typer") && !finished); }
+
+const APOS = ["'", "’", "ʼ", "`"];
+function same(a, b){ return a === b || (APOS.includes(a) && APOS.includes(b)); }
+const CYR = /[а-яіїєґё]/i, LAT = /[a-z]/i;
+
+function typeChar(c){
+  if(finished) return;
+  if(!t0){ t0 = Date.now(); tick = setInterval(updStats, 250); }
+  const exp = text[pos];
+  if(same(c, exp)){
+    pressKey(exp); pos++;
+    if(pos >= text.length){ finish(); return; }
+    paint(); updStats();
+  } else {
+    if(lang === "ua" && LAT.test(c) && !LAT.test(exp)){ hintFor("Схоже, увімкнена англійська розкладка. Перемкни на українську: <kbd>Alt</kbd>+<kbd>Shift</kbd> або <kbd>Win</kbd>+<kbd>Пробіл</kbd>."); return; }
+    if(lang === "en" && CYR.test(c) && !CYR.test(exp)){ hintFor("Схоже, увімкнена українська розкладка. Перемкни на англійську: <kbd>Alt</kbd>+<kbd>Shift</kbd> або <kbd>Win</kbd>+<kbd>Пробіл</kbd>."); return; }
+    errors++; errAt.add(pos);
+    paint(true); updStats();
+  }
+}
+function pressKey(ch){
+  const info = keyMap[ch]; if(!info) return;
+  info.el.classList.add("press"); setTimeout(()=>info.el.classList.remove("press"), 90);
+}
+
+function finish(){
+  finished = true; clearInterval(tick);
+  const secs = elapsed(), spd = Math.round(text.length / Math.max(secs, 1) * 60), acc = Math.max(0, Math.round((1 - errors/text.length)*100));
+  updStats(); $("sSpeed").textContent = spd; $("sAcc").textContent = acc + "%";
+  attempts.push({n:attempts.length+1, lang, level, secs, spd, acc, errors});
+  renderTable();
+  if(window.Kimnata) Kimnata.report({speed:spd, acc, errors, secs:Math.round(secs), lang, level});
+  const stars = acc >= 95 ? 3 : acc >= 85 ? 2 : 1;
+  $("stars").innerHTML = [1,2,3].map(i=>`<span class="${i<=stars?"":"off"}">⭐</span>`).join("");
+  $("resTitle").textContent = stars === 3 ? "Чудово!" : stars === 2 ? "Добре!" : "Готово!";
+  $("resText").textContent = `${spd} знаків за хвилину · точність ${acc}% · помилок: ${errors} · час ${fmt(secs)}` +
+    (stars < 3 ? ". Спробуй друкувати повільніше, але без помилок." : "");
+  $("levelUpBtn").hidden = level >= 4 || !!(window.Kimnata && Kimnata.join);
+  $("work").hidden = true; $("result").classList.add("show");
+  $("bar").style.width = "100%";
+  highlight(); updateCover();
+  $("nextTextBtn").focus({preventScroll:true});
+}
+
+function renderTable(){
+  const tb = $("tbody");
+  if(!attempts.length){ tb.innerHTML = `<tr><td colspan="7" class="empty">Тут з'являться твої спроби.</td></tr>`; return; }
+  const best = Math.max(...attempts.map(a=>a.spd));
+  tb.innerHTML = [...attempts].reverse().map((a,i)=>`
+    <tr class="${a.spd===best?"best":""} ${i===0?"last":""}">
+      <td>${a.n}</td><td>${LANG_NAMES[a.lang]}</td><td>${a.level} · ${LEVEL_NAMES[a.level]}</td>
+      <td class="num">${fmt(a.secs)}</td><td class="num">${a.spd===best?"⭐ ":""}${a.spd}</td>
+      <td class="num">${a.acc}%</td><td class="num">${a.errors}</td>
+    </tr>`).join("");
+}
+
+/* ---------- input ---------- */
+const typer = $("typer");
+typer.addEventListener("input", ()=>{
+  const v = typer.value; typer.value = "";
+  for(const c of v) typeChar(c);
+});
+typer.addEventListener("keydown", e=>{
+  if(e.key === "Escape"){ e.preventDefault(); start(false); return; }
+  if(e.key === "Tab" || e.key === "Backspace" || e.key === "Enter") e.preventDefault();
+});
+typer.addEventListener("blur", ()=>setTimeout(updateCover, 0));
+typer.addEventListener("focus", updateCover);
+$("cover").addEventListener("click", focusTyper);
+$("text").addEventListener("click", focusTyper);
+document.addEventListener("keydown", e=>{
+  if(finished && e.key === "Enter" && document.activeElement && document.activeElement.tagName !== "BUTTON"){ e.preventDefault(); start(true); }
+  if(finished && e.key === "Enter" && document.activeElement === $("nextTextBtn")){ /* button click handles it */ }
+});
+
+/* ---------- controls ---------- */
+function segInit(id, onChange){
+  $(id).addEventListener("click", e=>{
+    const b = e.target.closest("button"); if(!b) return;
+    $(id).querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b));
+    onChange(b.dataset.v);
+  });
+}
+function setLevel(v){
+  level = Number(v);
+  $("levelSeg").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x.dataset.v==String(level)));
+  lastTextIdx = -1; start(true);
+}
+segInit("langSeg", v=>{ lang = v; lastTextIdx = -1; buildKeyboard(); start(true); });
+segInit("levelSeg", setLevel);
+$("restartBtn").onclick = ()=>start(false);
+$("newBtn").onclick = ()=>start(true);
+$("againBtn").onclick = ()=>start(false);
+$("nextTextBtn").onclick = ()=>start(true);
+$("levelUpBtn").onclick = ()=>setLevel(level+1);
+
+function lockSettings(on){
+  document.querySelectorAll("#langSeg button, #levelSeg button").forEach(b=>b.disabled = on);
+  $("lockNote").hidden = !on;
+}
+function setLang(v){
+  lang = v;
+  $("langSeg").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x.dataset.v===v));
+  buildKeyboard();
+}
+buildKeyboard();
+start(true);
+if(window.Kimnata) Kimnata.attach("typing", {
+  onJoin(room){
+    const s = room.settings || {};
+    setLang(s.lang === "en" ? "en" : "ua");
+    level = Number(s.level) || 1;
+    $("levelSeg").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x.dataset.v==String(level)));
+    lockSettings(true); textNo = 0; lastTextIdx = -1; start(true);
+  },
+  onLeave(){ lockSettings(false); rng = Math.random; start(true); }
+});
+</script>
+</body>
+</html>
