@@ -6,7 +6,7 @@
    Поки адреса порожня, працює ДЕМО-РЕЖИМ: кімнати й результати
    зберігаються лише в цьому браузері (зручно, щоб спробувати).
    ========================================================================== */
-const KIMNATA_API = "";
+const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9Ofdi6yj_p-5VEMKZLy4Gtye87kJSw53D5PzHpdptr_nZwbVd/exec";
 
 (function () {
   "use strict";
