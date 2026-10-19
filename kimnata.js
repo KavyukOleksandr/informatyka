@@ -6,7 +6,7 @@
    Поки адреса порожня, працює ДЕМО-РЕЖИМ: кімнати й результати
    зберігаються лише в цьому браузері (зручно, щоб спробувати).
    ========================================================================== */
-const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9Ofdi6yj_p-5VEMKZLy4Gtye87kJSw53D5PzHpdptr_nZwbVd/exec"; 
+const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9Ofdi6yj_p-5VEMKZLy4Gtye87kJSw53D5PzHpdptr_nZwbVd/exec";  
 (function () {
   "use strict";
 
@@ -27,21 +27,28 @@ const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9
   function save(d) { try { localStorage.setItem(LS, JSON.stringify(d)); } catch (e) {} }
   function cleanName(s) { return String(s || "").trim().replace(/\s+/g, " ").slice(0, 40); }
 
+  function pub(r) { const o = Object.assign({}, r); delete o.owner; return o; }
   function localCall(p) {
     const d = db(), now = Date.now();
     const find = c => d.rooms.find(r => r.code === String(c));
     const r = p.code ? find(p.code) : null;
     switch (p.action) {
-      case "check": return { ok: true };
-      case "rooms": return { ok: true, rooms: d.rooms.filter(x => (p.all || x.open) && (!p.game || x.game === p.game)) };
-      case "room":  return r ? { ok: true, room: r } : { ok: false, error: "Кімнату з таким кодом не знайдено" };
-      case "board": return r ? { ok: true, room: r, results: d.results.filter(x => x.code === r.code) } : { ok: false, error: "Кімнату не знайдено" };
+      case "check": return { ok: true, master: false };
+      case "rooms": return { ok: true, rooms: d.rooms.filter(x => x.owner === p.owner).map(pub) };
+      case "room":  return r ? { ok: true, room: pub(r) } : { ok: false, error: "Кімнату з таким кодом не знайдено" };
+      case "board": return r ? { ok: true, room: pub(r), results: d.results.filter(x => x.code === r.code) } : { ok: false, error: "Кімнату не знайдено" };
       case "create": {
         let code; do { code = String(1000 + Math.floor(Math.random() * 9000)); } while (find(code));
-        const room = { code, name: cleanName(p.name) || "Кімната " + code, game: p.game, settings: p.settings || {}, open: true, created: now };
-        d.rooms.unshift(room); save(d); return { ok: true, room };
+        if (!p.owner) return { ok: false, error: "Немає ключа вчителя" };
+        const room = { code, name: cleanName(p.name) || "Кімната " + code, game: p.game, settings: p.settings || {}, open: true, created: now, owner: p.owner };
+        d.rooms.unshift(room); save(d); return { ok: true, room: pub(room) };
       }
-      case "setOpen": if (!r) return { ok: false, error: "Кімнату не знайдено" }; r.open = !!p.open; save(d); return { ok: true, room: r };
+      case "setOpen": case "clear": case "delete":
+        if (!r) return { ok: false, error: "Кімнату не знайдено" };
+        if (r.owner !== p.owner) return { ok: false, error: "Цією кімнатою керує інший комп'ютер" };
+    }
+    switch (p.action) {
+      case "setOpen": if (!r) return { ok: false, error: "Кімнату не знайдено" }; r.open = !!p.open; save(d); return { ok: true, room: pub(r) };
       case "clear":   d.results = d.results.filter(x => x.code !== String(p.code)); save(d); return { ok: true };
       case "delete":  d.rooms = d.rooms.filter(x => x.code !== String(p.code)); d.results = d.results.filter(x => x.code !== String(p.code)); save(d); return { ok: true };
       case "submit": {
@@ -58,7 +65,7 @@ const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9
   async function call(p) {
     if (demo) return localCall(JSON.parse(JSON.stringify(p)));
     let res;
-    if (READS.includes(p.action) && !p.key) {
+    if (READS.includes(p.action) && !p.owner) {
       const q = new URLSearchParams(Object.assign({}, p, { _: Date.now() }));
       res = await fetch(KIMNATA_API.trim() + "?" + q.toString());
     } else {
@@ -86,6 +93,20 @@ const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9
       return "Google не пускає сторінку до скрипта. Перевірте: 1) «Хто має доступ: Усі» (не «Усі, хто має акаунт Google»); 2) ви дозволили доступ під час першого розгортання; 3) після змін коду створено «Нову версію». Відкрийте в новій вкладці " + u + "?action=rooms — має з'явитися {\"ok\":true,…}.";
     }
   };
+
+  /* секретний ключ цього комп'ютера: кімнатами керує лише той, хто їх створив */
+  const OK = "kimnata-owner";
+  function ownerKey() {
+    let k = "";
+    try { k = localStorage.getItem(OK) || ""; } catch (e) {}
+    if (!k) {
+      const b = new Uint8Array(12); crypto.getRandomValues(b);
+      k = Array.from(b, x => x.toString(16).padStart(2, "0")).join("");
+      try { localStorage.setItem(OK, k); } catch (e) {}
+    }
+    return k;
+  }
+  function setOwnerKey(k) { try { localStorage.setItem(OK, String(k).trim()); } catch (e) {} }
 
   function link(room) {
     const g = GAMES[room.game];
@@ -138,6 +159,7 @@ const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9
   const K = {
     games: GAMES, demo, call, link, settingsText, cleanName,
     join: null,   // {code, name, room}
+    ownerKey, setOwnerKey,
     diagnose: () => K_diagnose(),
     attach
   };
@@ -200,7 +222,6 @@ const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9
         <p>Учитель покаже код кімнати на екрані.</p>
         <label for="kmCode">Код кімнати</label>
         <input id="kmCode" class="km-code" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="0000">
-        <div class="km-rooms" id="kmRooms"></div>
         <label for="kmName">Твоє ім'я та прізвище</label>
         <input id="kmName" maxlength="40" autocomplete="off" placeholder="Наприклад, Олена Коваль">
         <div class="km-err" id="kmErr"></div>
@@ -209,26 +230,12 @@ const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9
       dlg.querySelector("[data-km=cancel]").onclick = () => dlg.close();
       dlg.querySelector("[data-km=go]").onclick = submitJoin;
       dlg.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); submitJoin(); } e.stopPropagation(); });
-      dlg.querySelector("#kmCode").addEventListener("input", e => { e.target.value = e.target.value.replace(/\D/g, ""); markRooms(); });
+      dlg.querySelector("#kmCode").addEventListener("input", e => { e.target.value = e.target.value.replace(/\D/g, ""); });
     }
     dlg.querySelector("#kmCode").value = code || "";
     dlg.querySelector("#kmErr").textContent = "";
-    const list = dlg.querySelector("#kmRooms");
-    list.innerHTML = `<span class="km-muted">Шукаю відкриті кімнати…</span>`;
-    call({ action: "rooms", game: gameId }).then(r => {
-      const rooms = (r.rooms || []);
-      list.innerHTML = rooms.length
-        ? `<span class="km-muted">або обери зі списку:</span>` + rooms.map(x => `<button class="km-room" data-code="${esc(x.code)}"><b>${esc(x.code)}</b> · ${esc(x.name)}<small>${esc(settingsText(x))}</small></button>`).join("")
-        : `<span class="km-muted">Зараз відкритих кімнат для цієї гри немає — введи код від учителя.</span>`;
-      list.querySelectorAll(".km-room").forEach(b => b.onclick = () => { dlg.querySelector("#kmCode").value = b.dataset.code; markRooms(); dlg.querySelector("#kmName").focus(); });
-      markRooms();
-    }).catch(() => { list.innerHTML = `<span class="km-muted">Не вдалося завантажити список — введи код вручну.</span>`; });
     if (!dlg.open) dlg.showModal();
     (code ? dlg.querySelector("#kmName") : dlg.querySelector("#kmCode")).focus();
-  }
-  function markRooms() {
-    const c = dlg.querySelector("#kmCode").value;
-    dlg.querySelectorAll(".km-room").forEach(b => b.setAttribute("aria-pressed", b.dataset.code === c));
   }
   async function submitJoin() {
     const code = dlg.querySelector("#kmCode").value.trim(), name = cleanName(dlg.querySelector("#kmName").value);
