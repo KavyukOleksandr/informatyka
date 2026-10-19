@@ -223,7 +223,10 @@ async function tryPin(){
     const r = await K.call({action:"check", key:v});
     if(r.ok){ pin = v; try{ sessionStorage.setItem("kimnata-pin", v); }catch(e){} $("gate").hidden = true; unlock(); }
     else { $("pinMsg").className = "msg bad"; $("pinMsg").textContent = r.error || "Неправильний PIN"; }
-  }catch(e){ $("pinMsg").className = "msg bad"; $("pinMsg").textContent = "Немає зв'язку із сервером. Перевірте адресу в kimnata.js."; }
+  }catch(e){
+    $("pinMsg").className = "msg bad"; $("pinMsg").textContent = "Немає зв'язку із сервером. Перевіряю, у чому причина…";
+    $("pinMsg").textContent = await K.diagnose();
+  }
 }
 $("pinBtn").onclick = tryPin;
 $("pin").addEventListener("keydown", e=>{ if(e.key==="Enter") tryPin(); });
