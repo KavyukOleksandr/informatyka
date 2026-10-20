@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=JetBrains+Mono:wght@700&display=swap&subset=cyrillic" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
+<script src="nalashtuvannia.js"></script>
 <script src="kimnata.js"></script>
 <style>
 :root{
@@ -138,6 +139,7 @@ body.board-mode{background:#17124A; color:#fff}
         <div class="field opt" data-game="sorting"><label for="fCount">Кількість файлів</label><select id="fCount">
           <option value="2">12</option><option value="3" selected>18</option><option value="4">24</option></select></div>
         <div class="opt check" data-game="sorting"><input type="checkbox" id="fHard"><label for="fHard">Без підказок-іконок</label></div>
+        <div class="opt check" data-game="assembly"><input type="checkbox" id="fHardA"><label for="fHardA">Без підписів на схемі</label></div>
         <div><button class="btn primary big" id="createBtn">Створити кімнату</button></div>
       </div>
       <div class="msg" id="createMsg"></div>
@@ -213,6 +215,11 @@ const RANK = {
     cmp: (a,b)=> ((b.correct||0)/(b.total||1)) - ((a.correct||0)/(a.total||1)) || (a.secs||0)-(b.secs||0) || a.t-b.t,
     cells: (b,n)=>[(b.correct||0)+" / "+(b.total||0), fmt(b.secs), n]
   },
+  assembly: {
+    head: ["Помилки","Час","Спроб"],
+    cmp: (a,b)=> (a.errors||0)-(b.errors||0) || (a.secs||0)-(b.secs||0) || a.t-b.t,
+    cells: (b,n)=>[b.errors||0, fmt(b.secs), n]
+  },
   detective: {
     head: ["Бали","Час","Спроб"],
     cmp: (a,b)=> (b.score||0)-(a.score||0) || (a.secs||0)-(b.secs||0) || a.t-b.t,
@@ -286,6 +293,7 @@ $("rooms").addEventListener("click", async e=>{
 $("createBtn").onclick = async ()=>{
   const game = $("fGame").value, settings = {};
   if(game === "typing"){ settings.lang = $("fLang").value; settings.level = Number($("fLevel").value); }
+  if(game === "assembly"){ settings.hard = $("fHardA").checked; }
   if(game === "sorting"){ settings.count = Number($("fCount").value); settings.hard = $("fHard").checked; }
   $("createBtn").disabled = true; $("createMsg").className = "msg"; $("createMsg").textContent = "Створюю…";
   try{

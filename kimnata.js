@@ -1,19 +1,20 @@
 /* ==========================================================================
    КІМНАТИ ДЛЯ ЗМАГАНЬ
    ------------------------------------------------------------------------
-   Вставте між лапками адресу веб-застосунку Google Apps Script
-   (див. інструкцію в файлі kimnaty-apps-script.gs).
-   Поки адреса порожня, працює ДЕМО-РЕЖИМ: кімнати й результати
-   зберігаються лише в цьому браузері (зручно, щоб спробувати).
+   Адреса Google Apps Script зберігається в окремому файлі nalashtuvannia.js,
+   тож цей файл можна оновлювати, не боячись її стерти.
+   Поки адреса порожня, працює ДЕМО-РЕЖИМ (дані лише в цьому браузері).
    ========================================================================== */
-const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9Ofdi6yj_p-5VEMKZLy4Gtye87kJSw53D5PzHpdptr_nZwbVd/exec";  
+const KIMNATA_API = String(window.KIMNATA_API_URL || "").trim();
+
 (function () {
   "use strict";
 
   const GAMES = {
     typing:    { title: "Клавіатурний тренажер",        file: "klaviaturnyi-trenazher.html", icon: "⌨️" },
     sorting:   { title: "Наведи лад на робочому столі", file: "sortuvannia-failiv.html",     icon: "🗂️" },
-    detective: { title: "Юний кібердетектив",           file: "kiberdetektyv.html",          icon: "🕵️" }
+    detective: { title: "Юний кібердетектив",           file: "kiberdetektyv.html",          icon: "🕵️" },
+    assembly:  { title: "Збери комп'ютер",              file: "zbery-kompiuter.html",        icon: "🖥️" }
   };
   const demo = !KIMNATA_API.trim();
   let K_diagnose = async () => "";
@@ -118,6 +119,7 @@ const KIMNATA_API = "https://script.google.com/macros/s/AKfycbwnu1MTPF2WrjS3M6r9
       const L = { 1: "основний ряд", 2: "слова", 3: "речення", 4: "текст" };
       return (s.lang === "en" ? "English" : "Українська") + " · рівень " + s.level + " (" + (L[s.level] || "") + ")";
     }
+    if (room.game === "assembly") return s.hard ? "без підписів на схемі" : "з підписами на схемі";
     if (room.game === "sorting") return (s.count * 6) + " файлів" + (s.hard ? " · без підказок-іконок" : "");
     return "";
   }

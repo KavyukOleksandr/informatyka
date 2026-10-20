@@ -5,7 +5,10 @@
    1. Створіть нову Google Таблицю (наприклад, «Кімнати — результати»).
    2. Меню Розширення → Apps Script. Видаліть усе у файлі Code.gs
       і вставте весь цей код.
-   3. Змініть ADMIN_KEY нижче на свій PIN (його вводитимете на сторінці вчителя).
+   3. Змініть ADMIN_KEY нижче на свій «майстер-ключ». Звичайно він не потрібен:
+      сторінка вчителя сама створює ключ для вашого комп'ютера. Майстер-ключ
+      знадобиться, лише якщо ключ комп'ютера загубиться — вставте його
+      в поле «Ключ цього комп'ютера», і побачите всі кімнати.
    4. Натисніть «Зберегти» (дискета).
    5. Натисніть «Розгорнути» → «Нове розгортання» → тип «Веб-застосунок».
         Виконувати як: Я (ваш акаунт)
@@ -18,11 +21,11 @@
    олівець → Версія: «Нова версія» → Розгорнути (адреса лишиться та сама).
    ===================================================================== */
 
-const ADMIN_KEY = "1234";   // ← ЗМІНІТЬ на свій PIN
+const ADMIN_KEY = "1234";   // ← ЗМІНІТЬ на свій майстер-ключ (довгий, щоб не вгадали)
 
 const ROOMS = "Кімнати";
 const RESULTS = "Результати";
-const ROOM_HEAD = ["code", "name", "game", "settings", "open", "created"];
+const ROOM_HEAD = ["code", "name", "game", "settings", "open", "created", "owner"];
 const RES_HEAD  = ["time", "code", "name", "game", "data"];
 
 function doGet(e)  { return respond(e && e.parameter ? e.parameter : {}); }
@@ -42,6 +45,7 @@ function sheet(name, head) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sh = ss.getSheetByName(name);
   if (!sh) { sh = ss.insertSheet(name); sh.appendRow(head); sh.setFrozenRows(1); }
+  else if (sh.getLastColumn() < head.length) sh.getRange(1, 1, 1, head.length).setValues([head]);
   return sh;
 }
 function rows(sh) {
@@ -53,11 +57,13 @@ function toRoom(r) {
   return { code: String(r[0]), name: String(r[1]), game: String(r[2]), settings: s, open: r[4] === true || r[4] === "TRUE", created: Number(r[5]) };
 }
 function clean(s, n) { return String(s || "").trim().replace(/\s+/g, " ").slice(0, n || 40); }
-function needKey(p) { if (String(p.key) !== String(ADMIN_KEY)) throw new Error("Неправильний PIN учителя"); }
+function isMaster(p) { return String(p.owner || "") === String(ADMIN_KEY); }
+function ownerOk(p) { const o = String(p.owner || ""); if (o.length < 4) throw new Error("Немає ключа вчителя"); return o; }
+function canManage(f, p) { return isMaster(p) || (f.owner && String(f.owner) === String(p.owner || "")); }
 
 function findRoom(code) {
   const sh = sheet(ROOMS, ROOM_HEAD), all = rows(sh);
-  for (let i = 0; i < all.length; i++) if (String(all[i][0]) === String(code)) return { sh, row: i + 2, room: toRoom(all[i]) };
+  for (let i = 0; i < all.length; i++) if (String(all[i][0]) === String(code)) return { sh, row: i + 2, room: toRoom(all[i]), owner: String(all[i][6] || "") };
   return null;
 }
 
@@ -65,13 +71,16 @@ function route(p) {
   const a = p.action;
   const cache = CacheService.getScriptCache();
 
-  if (a === "check") { needKey(p); return { ok: true }; }
+  if (a === "check") { return { ok: true, master: isMaster(p) }; }
 
+  // лише кімнати власника (або всі — з майстер-ключем)
   if (a === "rooms") {
-    const list = rows(sheet(ROOMS, ROOM_HEAD)).map(toRoom)
-      .filter(r => (p.all ? true : r.open) && (!p.game || r.game === p.game))
+    const o = ownerOk(p), master = isMaster(p);
+    const list = rows(sheet(ROOMS, ROOM_HEAD))
+      .filter(r => master || String(r[6] || "") === o)
+      .map(toRoom)
       .sort((x, y) => y.created - x.created);
-    return { ok: true, rooms: list };
+    return { ok: true, rooms: list, master };
   }
 
   if (a === "room") {
@@ -107,21 +116,21 @@ function route(p) {
       return { ok: true };
     }
 
-    needKey(p);
-
     if (a === "create") {
+      const owner = ownerOk(p);
       const sh = sheet(ROOMS, ROOM_HEAD);
       const used = {}; rows(sh).forEach(r => used[String(r[0])] = true);
       let code, guard = 0;
       do { code = String(1000 + Math.floor(Math.random() * 9000)); } while (used[code] && ++guard < 500);
       const room = { code, name: clean(p.name, 60) || "Кімната " + code, game: clean(p.game, 20), settings: p.settings || {}, open: true, created: Date.now() };
-      sh.appendRow([room.code, room.name, room.game, JSON.stringify(room.settings), true, room.created]);
+      sh.appendRow([room.code, room.name, room.game, JSON.stringify(room.settings), true, room.created, owner]);
       sh.getRange(sh.getLastRow(), 1).setNumberFormat("@").setValue(room.code);
       return { ok: true, room };
     }
 
     const f = findRoom(p.code);
     if (!f) return { ok: false, error: "Кімнату не знайдено" };
+    if (!canManage(f, p)) return { ok: false, error: "Цією кімнатою керує інший комп'ютер" };
     cache.remove("board-" + f.room.code);
 
     if (a === "setOpen") { f.sh.getRange(f.row, 5).setValue(!!p.open); f.room.open = !!p.open; return { ok: true, room: f.room }; }
