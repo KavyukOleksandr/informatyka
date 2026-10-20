@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Збери комп'ютер</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap&subset=cyrillic" rel="stylesheet">
+  <script src="nalashtuvannia.js"></script>
+  <script src="kimnata.js"></script>
+  <style>
+    :root{
+      --page:#EEF1FF; --ink:#1A1B4B; --muted:#585C8C; --card:#FFFFFF; --line:#D6DBF5; --soft:#F4F6FF;
+      --desk:#2B1F7A; --blue:#2F6BFF; --violet:#7C4DFF; --amber:#FFC233; --ok:#16A34A; --bad:#E5484D;
+      --font:"Nunito","Segoe UI",Arial,system-ui,sans-serif; --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+      box-sizing:border-box;
+      padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+    }
+    @media (prefers-color-scheme: dark){
+      :root:not([data-theme="light"]){ --page:#13113A; --ink:#ECEBFF; --muted:#AEADDA; --card:#221F58; --line:#3A3680; --soft:#1A1749; }
+    }
+    :root[data-theme="dark"]{ --page:#13113A; --ink:#ECEBFF; --muted:#AEADDA; --card:#221F58; --line:#3A3680; --soft:#1A1749; }
+    *,*::before,*::after{box-sizing:inherit}
+    html{height:100%; scroll-padding-top:env(safe-area-inset-top,0px)}
+    body{margin:0; min-height:100%; background:var(--page); color:var(--ink); font-family:var(--font)}
+    button{font:inherit; color:inherit}
+    :focus-visible{outline:3px solid var(--amber); outline-offset:3px}
+    [hidden]{display:none !important}
+
+    .app{max-width:1320px; margin:0 auto; padding:18px clamp(12px,2.5vw,32px) 36px; display:flex; flex-direction:column; gap:14px}
+    .home{font-weight:800; font-size:15px; color:var(--blue); text-decoration:none}
+    .home:hover{text-decoration:underline}
+    .top{display:flex; flex-wrap:wrap; gap:10px 24px; align-items:flex-end; justify-content:space-between}
+    h1{margin:4px 0 0; font-size:clamp(26px,3.4vw,40px); font-weight:900; line-height:1.1}
+    .sub{margin:4px 0 0; color:var(--muted); font-weight:700; max-width:70ch}
+    .stats{display:flex; gap:8px; flex-wrap:wrap}
+    .stat{background:var(--card); border:2px solid var(--line); border-radius:14px; padding:6px 14px; min-width:92px; text-align:center}
+    .stat b{display:block; font-size:24px; font-weight:900; line-height:1.1; font-variant-numeric:tabular-nums}
+    .stat span{font-size:13px; color:var(--muted); font-weight:800}
+    .stat.err b{color:var(--bad)}
+
+    .bar{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; justify-content:space-between}
+    .steps{display:flex; gap:6px; flex-wrap:wrap; list-style:none; margin:0; padding:0}
+    .steps li{font-weight:900; font-size:15px; padding:7px 14px; border-radius:12px; background:var(--card); border:2px solid var(--line); color:var(--muted)}
+    .steps li.on{background:var(--blue); border-color:var(--blue); color:#fff}
+    .steps li.done{background:color-mix(in srgb, var(--ok) 16%, var(--card)); border-color:var(--ok); color:var(--ok)}
+    .controls{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    .btn{border:2px solid var(--line); background:var(--card); border-radius:12px; padding:8px 14px; font-weight:800; font-size:15px; cursor:pointer}
+    .btn.primary{background:var(--blue); border-color:var(--blue); color:#fff}
+    .btn[aria-pressed="true"]{background:var(--violet); border-color:var(--violet); color:#fff}
+    .btn:disabled{cursor:not-allowed; opacity:.6}
+    .lock-note{font-size:13px; font-weight:800; color:var(--violet)}
+
+    /* bench */
+    .bench{display:grid; grid-template-columns:minmax(0,1.35fr) minmax(300px,1fr); gap:16px; align-items:start}
+    .scene-wrap{background:#1F1A5E; border-radius:22px; padding:12px; position:relative}
+    .scene-wrap.desk{background:#C99A6B}
+    #scene{display:block; width:100%; height:auto; max-height:76vh; font-family:var(--font); user-select:none; -webkit-user-select:none; touch-action:none}
+    .zone{fill:rgba(255,194,51,.12); stroke:#FFC233; stroke-width:3; stroke-dasharray:9 7; cursor:pointer; transition:fill .12s}
+    .zone.hover,.zone:focus{fill:rgba(255,194,51,.45); outline:none}
+    .zone.armed{animation:armed 1.2s ease-in-out infinite}
+    @keyframes armed{50%{fill:rgba(255,194,51,.32)}}
+    .zlabel{fill:#fff; font-weight:900; paint-order:stroke; stroke:#15172A; stroke-width:5px; stroke-linejoin:round; pointer-events:none}
+    .placed .in{transform-box:fill-box; transform-origin:center}
+    .placed.pop .in{animation:pop .4s cubic-bezier(.3,1.6,.5,1)}
+    @keyframes pop{from{transform:scale(1.18); opacity:.2}}
+    .scene-wrap.shake{animation:shake .4s}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-4px)}}
+
+    .side{display:flex; flex-direction:column; gap:12px}
+    .panel{background:var(--card); border:2px solid var(--line); border-radius:22px; padding:14px}
+    .panel h2{margin:0 0 10px; font-size:20px; font-weight:900}
+    .tray{display:grid; grid-template-columns:repeat(auto-fill,minmax(122px,1fr)); gap:8px}
+    .part{border:2px solid var(--line); background:var(--soft); border-radius:16px; padding:8px 6px; display:flex; flex-direction:column; align-items:center; gap:4px;
+      cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none; text-align:center}
+    .part:hover{border-color:var(--blue)}
+    .part svg{width:100%; height:64px; display:block; pointer-events:none}
+    .part span{font-weight:800; font-size:14px; line-height:1.2; pointer-events:none}
+    .part.sel{border-color:var(--amber); box-shadow:0 0 0 3px var(--amber)}
+    .part.lifting{opacity:.25}
+    .ghost{position:fixed; left:0; top:0; z-index:60; pointer-events:none; margin:0; width:130px; background:var(--card);
+      box-shadow:0 14px 30px rgba(0,0,0,.35); border-color:var(--amber); will-change:transform}
+    .ghost.fly{transition:transform .25s ease-out, opacity .25s}
+
+    .msg{min-height:24px; font-weight:800; font-size:16px; line-height:1.4}
+    .msg.ok{color:var(--ok)} .msg.bad{color:var(--bad)}
+    .fact{display:grid; grid-template-columns:72px 1fr; gap:12px; align-items:center}
+    .fact svg{width:72px; height:60px}
+    .fact b{display:block; font-size:18px; font-weight:900}
+    .fact p{margin:2px 0 0; font-weight:700; color:var(--muted); line-height:1.4}
+    .fact{border-radius:16px; padding:10px; border:2px solid transparent; margin-top:8px}
+    .fact.good{border-color:var(--ok); background:color-mix(in srgb, var(--ok) 8%, var(--card))}
+    .fact.bad{border-color:var(--bad); background:color-mix(in srgb, var(--bad) 8%, var(--card))}
+    .fact.bad p{color:var(--ink)}
+    .cat{display:inline-block; margin-top:6px; color:#fff; font-weight:900; font-size:13px; border-radius:8px; padding:2px 9px}
+    .done-box{text-align:center; padding:10px 4px}
+    .done-box b{display:block; font-size:22px; font-weight:900; margin-bottom:8px}
+    .done-box p{margin:0 0 12px; color:var(--muted); font-weight:700}
+    .power{width:110px; height:110px; border-radius:50%; border:0; cursor:pointer; background:radial-gradient(circle at 40% 35%, #4ADE80, #15803D);
+      color:#fff; font-size:46px; font-weight:900; box-shadow:0 0 0 8px color-mix(in srgb, var(--ok) 25%, transparent), 0 10px 24px rgba(0,0,0,.25); animation:pulse 1.6s infinite}
+    @keyframes pulse{50%{box-shadow:0 0 0 16px color-mix(in srgb, var(--ok) 10%, transparent), 0 10px 24px rgba(0,0,0,.25)}}
+
+    dialog{border:0; border-radius:24px; padding:26px clamp(18px,4vw,40px); max-width:min(520px,92vw); background:var(--card); color:var(--ink); text-align:center}
+    dialog::backdrop{background:rgba(26,27,75,.6)}
+    dialog h2{margin:6px 0; font-size:28px; font-weight:900}
+    dialog p{margin:0; color:var(--muted); font-weight:700}
+    .stars{font-size:50px; letter-spacing:6px; line-height:1}
+    .stars .off{filter:grayscale(1); opacity:.3}
+    .res{display:flex; justify-content:center; gap:10px; margin:16px 0 18px; flex-wrap:wrap}
+
+    @media (max-width:900px){ .bench{grid-template-columns:1fr} #scene{max-height:none} .side .panel:last-child{order:-1} }
+    @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important} }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div>
+      <a class="home" href="./">← Усі ігри</a>
+      <h1>Збери комп'ютер</h1>
+      <p class="sub">Перетягни кожну деталь на її місце. Можна й так: торкнись деталі, потім місця. Думай про порядок — деякі деталі кріпляться на інші!</p>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="sPlaced">0/9</b><span>на місці</span></div>
+      <div class="stat err"><b id="sErr">0</b><span>помилки</span></div>
+      <div class="stat"><b id="sTime">0:00</b><span>час</span></div>
+    </div>
+  </div>
+
+  <div id="kimnata-bar"></div>
+
+  <div class="bar">
+    <ol class="steps" id="steps">
+      <li data-s="1">1 · Системний блок</li>
+      <li data-s="2">2 · Периферія</li>
+      <li data-s="3">3 · Запуск</li>
+    </ol>
+    <div class="controls">
+      <button class="btn" id="restartBtn">Почати знову</button>
+      <button class="btn" id="hardBtn" aria-pressed="false" title="Місця на схемі будуть без підписів">Без підписів</button>
+      <button class="btn" id="soundBtn" aria-pressed="true">Звук: увімк.</button>
+      <span class="lock-note" id="lockNote" hidden>🔒 Режим задав учитель</span>
+    </div>
+  </div>
+
+  <div class="bench">
+    <div class="scene-wrap" id="sceneWrap">
+      <svg id="scene" viewBox="0 0 600 720" role="img" aria-label="Робоче поле для складання"></svg>
+    </div>
+    <div class="side">
+      <section class="panel">
+        <h2 id="trayTitle">Деталі на столі</h2>
+        <div class="tray" id="tray"></div>
+      </section>
+      <section class="panel">
+        <div class="msg" id="msg" aria-live="polite">Почни з найбільшої деталі — до неї кріпляться інші.</div>
+        <div class="fact" id="fact" hidden></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<dialog id="done">
+  <div class="stars" id="stars"></div>
+  <h2 id="dTitle">Комп'ютер зібрано!</h2>
+  <p id="dText"></p>
+  <div class="res">
+    <div class="stat"><b id="rTime">0:00</b><span>час</span></div>
+    <div class="stat err"><b id="rErr">0</b><span>помилки</span></div>
+    <div class="stat"><b id="rBest">—</b><span>найкращий час</span></div>
+  </div>
+  <button class="btn primary" id="again">Зібрати ще раз</button>
+</dialog>
+
+<script>
+  /* ===================== МАЛЮНКИ ДЕТАЛЕЙ ===================== */
+  function fan(cx, cy, r){
+    let b = "";
+    for(let i=0;i<7;i++) b += `<path d="M${cx} ${cy} C ${cx+r*.15} ${cy-r*.55}, ${cx+r*.55} ${cy-r*.95}, ${cx+r*.78} ${cy-r*.5} C ${cx+r*.5} ${cy-r*.35}, ${cx+r*.25} ${cy-r*.15}, ${cx} ${cy}Z" fill="#8C93B8" transform="rotate(${i*360/7} ${cx} ${cy})"/>`;
+    return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#15172A" stroke="#4A4E66" stroke-width="3"/>${b}<circle cx="${cx}" cy="${cy}" r="${r*.27}" fill="#2F6BFF"/>`;
+  }
+  const DRAW = {
+    mobo: ()=>`
+    <rect width="400" height="460" rx="8" fill="#1F6E4E" stroke="#155338" stroke-width="3"/>
+    <path d="M180 120 H215 M180 140 H215 M175 160 V270 M120 160 V270 M240 250 H300 V320 M300 330 V420 M60 420 H200 M340 120 V300" stroke="#2E8A63" stroke-width="3" fill="none"/>
+    ${[[15,15],[385,15],[15,445],[385,445],[200,445]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="6" fill="#C9A227"/>`).join("")}
+    <rect x="4" y="22" width="34" height="130" rx="3" fill="#8A8FA3"/>
+    <rect x="10" y="32" width="22" height="12" rx="2" fill="#2B2E3F"/><rect x="10" y="52" width="22" height="12" rx="2" fill="#2F6BFF"/>
+    <rect x="10" y="72" width="22" height="12" rx="2" fill="#2F6BFF"/><circle cx="21" cy="105" r="6" fill="#4ADE80"/><circle cx="21" cy="128" r="6" fill="#F472B6"/>
+    <rect x="60" y="22" width="130" height="26" rx="4" fill="#3A3F55"/><rect x="48" y="58" width="22" height="110" rx="4" fill="#3A3F55"/>
+    <rect x="80" y="60" width="90" height="90" rx="4" fill="#D9DCE6" stroke="#9AA0B5" stroke-width="3"/>
+    <rect x="92" y="72" width="66" height="66" fill="#C3C7D4"/>
+    <path d="M100 80 h50 M100 90 h50 M100 100 h50 M100 110 h50 M100 120 h50 M100 130 h50" stroke="#AEB3C2" stroke-width="2"/>
+    <path d="M174 64 V148" stroke="#9AA0B5" stroke-width="4" stroke-linecap="round"/>
+    <rect x="220" y="35" width="14" height="200" rx="2" fill="#23263A"/><rect x="242" y="35" width="14" height="200" rx="2" fill="#23263A"/>
+    <rect x="218" y="31" width="18" height="8" rx="2" fill="#E8EAF2"/><rect x="240" y="31" width="18" height="8" rx="2" fill="#E8EAF2"/>
+    <rect x="372" y="150" width="18" height="90" rx="2" fill="#F2F2F2" stroke="#999"/>
+    <rect x="30" y="280" width="260" height="14" rx="2" fill="#23263A"/><rect x="286" y="276" width="10" height="22" rx="2" fill="#E8EAF2"/>
+    <rect x="30" y="320" width="70" height="10" rx="2" fill="#23263A"/>
+    <rect x="50" y="370" width="140" height="16" rx="2" fill="#2B2F45"/><circle cx="198" cy="378" r="5" fill="#C9CDD8"/>
+    <rect x="250" y="330" width="90" height="70" rx="6" fill="#3A3F55"/><path d="M262 345 h66 M262 357 h66 M262 369 h66 M262 381 h66" stroke="#4E5470" stroke-width="3"/>
+    <circle cx="330" cy="250" r="16" fill="#C9CCD6" stroke="#9AA0B5" stroke-width="2"/>
+    <rect x="360" y="330" width="22" height="10" rx="2" fill="#2F6BFF"/><rect x="360" y="346" width="22" height="10" rx="2" fill="#2F6BFF"/>`,
+    cpu: ()=>`
+    <rect width="90" height="90" rx="6" fill="#B8BCC9" stroke="#8E93A6" stroke-width="2"/>
+    <rect x="9" y="9" width="72" height="72" rx="4" fill="#DADDE6"/>
+    <text x="45" y="52" text-anchor="middle" font-size="19" font-weight="900" fill="#4A4F66">CPU</text>
+    <path d="M6 84 L6 72 L18 84Z" fill="#C9A227"/>`,
+    cooler: ()=>`<rect width="120" height="120" rx="14" fill="#3A3F55" stroke="#1C1F2E" stroke-width="3"/>${fan(60,60,50)}`,
+    ram: (w,h)=> (w>h) ? `
+    <rect width="${w}" height="${h}" rx="4" fill="#1F3A93"/>
+    <rect x="8" y="4" width="${w-16}" height="${h-14}" rx="3" fill="#2F55C7"/>
+    <rect x="0" y="0" width="${w}" height="5" rx="2" fill="#7C4DFF"/>
+    <text x="${w/2}" y="${h/2+2}" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">DDR5 · 8 ГБ</text>
+    <rect x="6" y="${h-7}" width="${w*.55}" height="6" fill="#D4A93A"/><rect x="${w*.55+12}" y="${h-7}" width="${w*.45-18}" height="6" fill="#D4A93A"/>`
+            : `
+    <rect width="${w}" height="${h}" rx="3" fill="#1F3A93"/>
+    <rect x="3" y="8" width="${w-6}" height="${h-16}" rx="2" fill="#2F55C7"/>
+    <rect x="0" y="0" width="${w}" height="6" rx="2" fill="#7C4DFF"/>
+    <path d="M${w/2} 20 V${h-20}" stroke="#7FA0FF" stroke-width="2" stroke-dasharray="10 8"/>`,
+    gpu: ()=>`
+    <rect x="0" y="0" width="10" height="80" rx="2" fill="#B7BCCB"/>
+    <rect x="10" y="4" width="350" height="68" rx="10" fill="#2B2E3F" stroke="#1A1C28" stroke-width="2"/>
+    ${fan(110,36,27)}${fan(250,36,27)}
+    <rect x="20" y="62" width="330" height="6" rx="3" fill="#7C4DFF"/>
+    <text x="318" y="42" text-anchor="middle" font-size="14" font-weight="900" fill="#AEB3C7">GPU</text>`,
+    ssd: ()=>`
+    <rect width="140" height="20" rx="3" fill="#141728"/><rect x="0" y="3" width="8" height="14" fill="#D4A93A"/>
+    <rect x="16" y="4" width="34" height="12" rx="2" fill="#3B3F55"/><rect x="56" y="4" width="34" height="12" rx="2" fill="#3B3F55"/>
+    <text x="116" y="14.5" text-anchor="middle" font-size="10" font-weight="900" fill="#fff">SSD</text>`,
+    hdd: ()=>`
+    <rect width="80" height="130" rx="6" fill="#C9CDD8" stroke="#8E93A6" stroke-width="2"/>
+    <circle cx="40" cy="52" r="28" fill="#E3E6EE" stroke="#A3A8B9" stroke-width="2"/><circle cx="40" cy="52" r="5" fill="#A3A8B9"/>
+    <path d="M64 82 L46 57" stroke="#6B7085" stroke-width="4" stroke-linecap="round"/>
+    <rect x="10" y="94" width="60" height="26" rx="3" fill="#fff"/>
+    <text x="40" y="112" text-anchor="middle" font-size="14" font-weight="900" fill="#1A1B4B">HDD</text>`,
+    psu: ()=>`
+    <rect width="260" height="100" rx="8" fill="#1C1E2B" stroke="#3A3D52" stroke-width="3"/>
+    <circle cx="70" cy="50" r="38" fill="none" stroke="#4A4E66" stroke-width="3"/><circle cx="70" cy="50" r="27" fill="none" stroke="#4A4E66" stroke-width="3"/>
+    <circle cx="70" cy="50" r="16" fill="none" stroke="#4A4E66" stroke-width="3"/><path d="M32 50 H108 M70 12 V88" stroke="#4A4E66" stroke-width="3"/>
+    <text x="180" y="50" text-anchor="middle" font-size="22" font-weight="900" fill="#fff">БЖ</text>
+    <text x="180" y="74" text-anchor="middle" font-size="15" font-weight="800" fill="#AEB3C7">650 Вт</text>`,
+    monitor: ()=>`
+    <rect x="140" y="198" width="40" height="34" fill="#3A3D52"/><ellipse cx="160" cy="232" rx="72" ry="8" fill="#2B2E3F"/>
+    <rect width="320" height="200" rx="10" fill="#1C1E2B"/>
+    <rect x="10" y="10" width="300" height="175" rx="4" fill="#0E1A3A"/>
+    <path d="M30 30 L90 30 M30 30 L30 70" stroke="#22305E" stroke-width="6" stroke-linecap="round"/>`,
+    webcam: ()=>`<rect width="50" height="30" rx="10" fill="#1C1E2B"/><circle cx="25" cy="15" r="9" fill="#3A6BFF" stroke="#8E93A6" stroke-width="3"/><circle cx="42" cy="9" r="2.5" fill="#4ADE80"/>`,
+    speakers: ()=>[0,66].map(x=>`<g transform="translate(${x} 4)"><rect width="52" height="142" rx="9" fill="#2B2E3F"/><circle cx="26" cy="38" r="9" fill="#15172A" stroke="#555A73" stroke-width="3"/><circle cx="26" cy="96" r="19" fill="#15172A" stroke="#555A73" stroke-width="3"/><circle cx="26" cy="96" r="6" fill="#555A73"/></g>`).join(""),
+    printer: ()=>`
+    <rect x="40" y="0" width="100" height="50" fill="#fff" stroke="#C9CDD8" stroke-width="2"/><path d="M52 14 h76 M52 26 h60" stroke="#C9CDD8" stroke-width="3"/>
+    <rect x="0" y="38" width="180" height="92" rx="12" fill="#E8EAF2" stroke="#A3A8B9" stroke-width="2"/>
+    <rect x="20" y="84" width="140" height="9" rx="3" fill="#3A3D52"/>
+    <circle cx="150" cy="58" r="6" fill="#4ADE80"/><circle cx="132" cy="58" r="6" fill="#C9CDD8"/>
+    <rect x="44" y="92" width="92" height="30" fill="#fff" stroke="#C9CDD8"/>`,
+    keyboard: ()=>{
+      let k = `<rect width="330" height="90" rx="10" fill="#2B2E3F"/>`;
+      for(let r=0;r<4;r++) for(let c=0;c<14;c++){ if(r===3 && c>3 && c<10) continue; k += `<rect x="${10+c*22.4}" y="${10+r*18}" width="18" height="14" rx="3" fill="#4A4E66"/>`; }
+      return k + `<rect x="99" y="64" width="132" height="14" rx="3" fill="#4A4E66"/>`;
+    },
+    mouse: ()=>`<rect width="60" height="85" rx="30" fill="#2B2E3F"/><path d="M30 2 V34" stroke="#15172A" stroke-width="3"/><rect x="26" y="12" width="8" height="16" rx="4" fill="#7C4DFF"/>`,
+    mic: ()=>`
+    <ellipse cx="35" cy="112" rx="30" ry="8" fill="#2B2E3F"/><rect x="32" y="52" width="6" height="60" fill="#4A4E66"/>
+    <rect x="17" y="0" width="36" height="58" rx="18" fill="#3A3D52"/>
+    <path d="M23 16 h24 M21 28 h28 M23 40 h24" stroke="#5B6080" stroke-width="3" stroke-linecap="round"/>`,
+    flash: ()=>`<rect x="0" y="4" width="18" height="14" fill="#C9CDD8"/><rect x="5" y="8" width="3" height="3" fill="#6B7085"/><rect x="11" y="8" width="3" height="3" fill="#6B7085"/><rect x="16" y="0" width="40" height="22" rx="6" fill="#2F6BFF"/><circle cx="48" cy="11" r="3" fill="#BFD0FF"/>`
+  };
+
+  /* ===================== ДЕТАЛІ ===================== */
+  const CAT = { in:["Пристрій введення","#2F6BFF"], out:["Пристрій виведення","#7C4DFF"], store:["Пристрій зберігання","#B98900"] };
+  const PARTS = {
+    mobo:   {name:"Материнська плата", w:400,h:460, z:0, fact:"Головна плата комп'ютера. До неї під'єднують усі інші деталі, і через неї вони «спілкуються» між собою.",
+      where:"Материнську плату кріплять на стійки в корпусі — це найбільше місце всередині."},
+    cpu:    {name:"Процесор (CPU)", w:90,h:90, z:1, fact:"«Мозок» комп'ютера: виконує обчислення й керує роботою всіх пристроїв.",
+      where:"Процесор встановлюють у сокет — квадратне гніздо на материнській платі."},
+    cooler: {name:"Кулер", w:120,h:120, z:2, fact:"Вентилятор із радіатором. Охолоджує процесор, щоб той не перегрівся.",
+      where:"Кулер ставлять поверх процесора."},
+    ram:    {name:"Оперативна пам'ять (RAM)", w:210,h:40, z:1, flex:true, fact:"Тимчасово зберігає дані програм, які зараз працюють. Після вимкнення комп'ютера вона очищується.",
+      where:"Оперативну пам'ять вставляють у довгі вузькі слоти DIMM поруч із процесором."},
+    gpu:    {name:"Відеокарта", w:360,h:80, z:3, fact:"Створює зображення, яке ми бачимо на моніторі.",
+      where:"Відеокарту вставляють у довгий слот PCI Express x16."},
+    ssd:    {name:"SSD-накопичувач", w:140,h:20, z:1, fact:"Зберігає файли й програми надовго — навіть коли комп'ютер вимкнено. Працює дуже швидко.",
+      where:"SSD формату M.2 вставляють у маленький слот M.2 на материнській платі."},
+    hdd:    {name:"Жорсткий диск (HDD)", w:80,h:130, z:1, fact:"Теж зберігає файли надовго. Повільніший за SSD, але вміщує більше даних.",
+      where:"Жорсткий диск ставлять у відсік для дисків збоку корпусу."},
+    psu:    {name:"Блок живлення", w:260,h:100, z:1, fact:"Перетворює струм із розетки й живить усі деталі комп'ютера.",
+      where:"Блок живлення встановлюють у відсік унизу корпусу."},
+
+    monitor:{name:"Монітор", w:320,h:240, z:0, cat:"out", fact:"Показує зображення: текст, малюнки, відео.", where:"Монітор ставлять на стіл посередині, перед собою."},
+    webcam: {name:"Вебкамера", w:50,h:30, z:1, cat:"in", fact:"Знімає відео й передає його в комп'ютер — наприклад, для відеодзвінків.", where:"Вебкамеру кріплять зверху на монітор."},
+    speakers:{name:"Колонки", w:120,h:150, z:0, cat:"out", fact:"Відтворюють звук: музику, голос, звуки ігор.", where:"Колонки ставлять поруч із монітором."},
+    printer:{name:"Принтер", w:180,h:140, z:0, cat:"out", fact:"Друкує текст і зображення на папері.", where:"Принтер ставлять збоку на столі."},
+    keyboard:{name:"Клавіатура", w:330,h:90, z:0, cat:"in", fact:"Для введення тексту, чисел і команд.", where:"Клавіатуру кладуть на стіл перед монітором."},
+    mouse:  {name:"Миша", w:60,h:85, z:0, cat:"in", fact:"Керує вказівником на екрані: вибираємо, натискаємо, перетягуємо.", where:"Мишу кладуть праворуч від клавіатури."},
+    mic:    {name:"Мікрофон", w:70,h:120, z:0, cat:"in", fact:"Записує звук і голос та передає їх у комп'ютер.", where:"Мікрофон ставлять на стіл ліворуч від клавіатури."},
+    flash:  {name:"Флешка", w:56,h:22, z:2, cat:"store", fact:"Невеликий накопичувач, щоб переносити файли з одного комп'ютера на інший.", where:"Флешку вставляють у USB-порт на системному блоці."}
+  };
+
+  /* ===================== ЕТАПИ ===================== */
+  const STAGES = {
+    1: {
+      view:"0 0 600 720", wrap:"",
+      tray:["mobo","cpu","cooler","ram","ram","gpu","ssd","hdd","psu"],
+      start:"Почни з найбільшої деталі — до неї кріпляться інші.",
+      bg: ()=>`
+      <rect x="10" y="10" width="580" height="700" rx="18" fill="#3A3D52"/>
+      <rect x="24" y="24" width="552" height="672" rx="10" fill="#15172A"/>
+      <rect x="24" y="80" width="10" height="134" fill="#2A2D3E"/>
+      <circle cx="530" cy="110" r="46" fill="none" stroke="#2A2D3E" stroke-width="4"/><circle cx="530" cy="110" r="14" fill="#2A2D3E"/>
+      <rect x="485" y="415" width="100" height="165" rx="6" fill="none" stroke="#3A3D52" stroke-width="3"/>
+      <rect x="24" y="575" width="552" height="121" fill="#1C1F33"/><path d="M24 575 H576" stroke="#3A3D52" stroke-width="3"/>
+      ${[[85,75],[455,75],[85,505],[455,505],[270,505]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5" fill="#8A7322"/>`).join("")}`,
+      zones:[
+        {id:"mobo",  accepts:"mobo",  hit:[70,60,400,460],  label:"Місце для\nматеринської плати", fs:20, what:"місце для материнської плати"},
+        {id:"socket",accepts:"cpu",   hit:[140,110,110,110], place:[150,120,90,90], requires:"mobo", label:"Сокет\nпроцесора", what:"сокет процесора"},
+        {id:"cooler",accepts:"cooler",hit:[135,105,120,120], requires:"cpu", label:"Над\nпроцесором", what:"місце над процесором"},
+        {id:"dimm1", accepts:"ram",   hit:[280,88,24,214], place:[288,92,18,206], requires:"mobo", label:"Слот DIMM", vertical:true, fs:13, what:"слот DIMM"},
+        {id:"dimm2", accepts:"ram",   hit:[304,88,26,214], place:[310,92,18,206], requires:"mobo", label:"Слот DIMM", vertical:true, fs:13, what:"слот DIMM"},
+        {id:"pcie",  accepts:"gpu",   hit:[90,326,360,80], requires:"mobo", label:"Слот PCI Express x16", what:"слот PCI Express x16"},
+        {id:"m2",    accepts:"ssd",   hit:[112,418,156,36], place:[120,426,140,20], requires:"mobo", label:"Слот M.2", fs:14, what:"слот M.2"},
+        {id:"bay",   accepts:"hdd",   hit:[495,430,80,130], label:"Відсік\nдля\nдисків", fs:14, what:"відсік для дисків"},
+        {id:"psu",   accepts:"psu",   hit:[60,590,260,100], label:"Відсік блока\nживлення", what:"відсік блока живлення"}
+      ]
+    },
+    2: {
+      view:"0 0 1000 600", wrap:"desk",
+      tray:["monitor","webcam","speakers","printer","keyboard","mouse","mic","flash"],
+      start:"Системний блок готовий. Тепер розстав пристрої на робочому столі.",
+      bg: ()=>`
+      <rect width="1000" height="600" fill="#DDE4FF"/>
+      <rect x="60" y="30" width="150" height="120" rx="6" fill="#BFD7FF" stroke="#fff" stroke-width="8"/><path d="M135 30 V150 M60 90 H210" stroke="#fff" stroke-width="6"/>
+      <rect x="0" y="360" width="1000" height="240" fill="#C99A6B"/><rect x="0" y="360" width="1000" height="9" fill="#A87A4D"/>
+      <path d="M0 430 C 250 420, 500 445, 1000 425 M0 520 C 300 505, 600 535, 1000 515" stroke="#B98A5C" stroke-width="3" fill="none"/>
+      <rect x="830" y="140" width="140" height="330" rx="10" fill="#2A2D3E"/>
+      <rect x="846" y="290" width="108" height="160" rx="6" fill="#23263A"/><path d="M856 310 h88 M856 330 h88 M856 350 h88 M856 370 h88 M856 390 h88 M856 410 h88 M856 430 h88" stroke="#33374F" stroke-width="4"/>
+      <circle cx="900" cy="178" r="14" fill="#3A3D52" stroke="#5B6080" stroke-width="3"/><path d="M900 170 V180 M894 173 A9 9 0 1 0 906 173" stroke="#AEB3C7" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle id="pwrLed" cx="944" cy="178" r="5" fill="#4A4E66"/>
+      <rect x="870" y="228" width="16" height="10" rx="2" fill="#15172A"/><rect x="892" y="228" width="16" height="10" rx="2" fill="#15172A"/>`,
+      zones:[
+        {id:"monitor", accepts:"monitor", hit:[370,120,320,240], label:"Виведення\nзображення", fs:20, what:"місце для виведення зображення"},
+        {id:"webcam",  accepts:"webcam",  hit:[490,82,80,46], place:[505,90,50,30], requires:"monitor", label:"Відеозв'язок", fs:13, what:"місце для відеозв'язку"},
+        {id:"speakers",accepts:"speakers",hit:[220,210,120,150], label:"Виведення\nзвуку", what:"місце для виведення звуку"},
+        {id:"printer", accepts:"printer", hit:[20,220,180,140], label:"Друк\nна папері", what:"місце для друку на папері"},
+        {id:"keyboard",accepts:"keyboard",hit:[360,400,330,90], label:"Введення тексту", what:"місце для введення тексту"},
+        {id:"mouse",   accepts:"mouse",   hit:[715,400,70,95], place:[720,405,60,85], label:"Керування\nвказівником", fs:13, what:"місце для керування вказівником"},
+        {id:"mic",     accepts:"mic",     hit:[250,380,70,120], label:"Введення\nзвуку", fs:14, what:"місце для введення звуку"},
+        {id:"flash",   accepts:"flash",   hit:[850,212,90,44], place:[870,222,56,22], label:"Перенесення\nфайлів", fs:12, what:"USB-порт для перенесення файлів"}
+      ]
+    }
+  };
+  const NEED = {
+    mobo:"Ця деталь кріпиться на материнську плату. Спочатку встанови материнську плату!",
+    cpu:"Кулер ставлять поверх процесора. Спочатку встанови процесор!",
+    monitor:"Вебкамеру кріплять на монітор. Спочатку постав монітор!"
+  };
+
+  /* ===================== СТАН ===================== */
+  const $ = id => document.getElementById(id);
+  const svg = $("scene");
+  let stage = 1, items = [], errors = 0, t0 = 0, tEnd = 0, timer = null, selected = null, lastPlaced = null;
+  let hard = false, sound = true, finished = false;
+
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+  function fmt(s){ s=Math.max(0,Math.round(s)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
+  function elapsed(){ return t0 ? ((tEnd || Date.now()) - t0)/1000 : 0; }
+  function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+  const S = () => STAGES[stage];
+  const zoneById = id => S().zones.find(z=>z.id===id);
+  const placedTypes = () => new Set(items.filter(i=>i.zone).map(i=>i.type));
+  const zoneFilled = id => items.some(i=>i.zone===id);
+  function available(z){ return !zoneFilled(z.id) && (!z.requires || placedTypes().has(z.requires)); }
+  function rectOf(z){ return z.place || z.hit; }
+
+  function icon(type){
+    const P = PARTS[type];
+    const padH = Math.max(0,(P.w*.38-P.h)/2), padW = Math.max(0,(P.h*.9-P.w)/2);
+    return `<svg viewBox="${-padW-4} ${-padH-4} ${P.w+2*padW+8} ${P.h+2*padH+8}" aria-hidden="true">${P.flex ? DRAW[type](P.w,P.h) : DRAW[type]()}</svg>`;
+  }
+
+  /* ===================== РЕНДЕР ===================== */
+  function zoneLabel(z){
+    const [x,y,w,h] = z.hit, fs = z.fs || 16, lines = z.label.split("\n");
+    const cx = x+w/2, cy = y+h/2;
+    if(z.vertical) return `<text class="zlabel" font-size="${fs}" text-anchor="middle" dominant-baseline="middle" transform="translate(${cx} ${cy}) rotate(-90)">${esc(z.label)}</text>`;
+    const top = cy - (lines.length-1)*fs*.6;
+    return `<text class="zlabel" font-size="${fs}" text-anchor="middle">${lines.map((l,i)=>`<tspan x="${cx}" y="${top+i*fs*1.2+fs*.35}">${esc(l)}</tspan>`).join("")}</text>`;
+  }
+  function render(){
+    const st = S();
+    svg.setAttribute("viewBox", st.view);
+    $("sceneWrap").className = "scene-wrap " + st.wrap;
+    let html = st.bg();
+    const placed = items.filter(i=>i.zone).sort((a,b)=>PARTS[a.type].z-PARTS[b.type].z);
+    for(const it of placed){
+      const z = zoneById(it.zone), [x,y,w,h] = rectOf(z), P = PARTS[it.type];
+      const inner = P.flex ? DRAW[it.type](w,h) : `<g transform="scale(${w/P.w} ${h/P.h})">${DRAW[it.type]()}</g>`;
+      html += `<g class="placed${it.uid===lastPlaced?" pop":""}" data-part="${it.type}" transform="translate(${x} ${y})"><g class="in">${inner}</g></g>`;
+    }
+    if(!finished) for(const z of st.zones.filter(available)){
+      const [x,y,w,h] = z.hit;
+      html += `<rect class="zone${selected?" armed":""}" data-zone="${z.id}" x="${x}" y="${y}" width="${w}" height="${h}" rx="8" tabindex="0" role="button" aria-label="${esc(hard ? "Місце на схемі" : z.label.replace(/\n/g," "))}"/>`;
+      if(!hard) html += zoneLabel(z);
+    }
+    svg.innerHTML = html;
+    lastPlaced = null;
+    renderTray(); updStats(); renderSteps();
+  }
+  function renderTray(){
+    const tray = $("tray"), left = items.filter(i=>!i.zone);
+    $("trayTitle").textContent = stage === 1 ? "Деталі на столі" : "Пристрої на столі";
+    if(left.length){
+      tray.innerHTML = left.map(i=>`<button class="part${selected===i.uid?" sel":""}" data-uid="${i.uid}" aria-label="${esc(PARTS[i.type].name)}">${icon(i.type)}<span>${esc(PARTS[i.type].name)}</span></button>`).join("");
+    } else if(stage === 1){
+      tray.innerHTML = `<div class="done-box" style="grid-column:1/-1"><b>✅ Системний блок зібрано!</b><p>Тепер під'єднаємо до нього периферійні пристрої.</p><button class="btn primary" id="nextStage">Далі: периферія →</button></div>`;
+      $("nextStage").onclick = ()=>{ stage = 2; setupStage(); };
+    } else {
+      tray.innerHTML = `<div class="done-box" style="grid-column:1/-1"><b>✅ Усі пристрої на місцях!</b><p>Натисни кнопку живлення, щоб увімкнути комп'ютер.</p><button class="power" id="powerBtn" aria-label="Увімкнути комп'ютер">⏻</button></div>`;
+      $("powerBtn").onclick = bootUp;
+    }
+  }
+  function renderSteps(){
+    document.querySelectorAll("#steps li").forEach(li=>{
+      const s = Number(li.dataset.s), cur = finished ? 3 : stage;
+      li.className = s < cur || (s===3 && booted) ? "done" : s === cur ? "on" : "";
+    });
+  }
+  function updStats(){
+    const st = S(), total = st.tray.length, done = items.filter(i=>i.zone).length;
+    $("sPlaced").textContent = done+"/"+total;
+    $("sErr").textContent = errors;
+    $("sTime").textContent = fmt(elapsed());
+  }
+  function setupStage(){
+    items = shuffle(S().tray.map((type,i)=>({uid:stage+"-"+i, type, zone:null})));
+    selected = null;
+    say(S().start, "");
+    $("fact").hidden = true;
+    render();
+  }
+  function say(text, cls){ const m = $("msg"); m.className = "msg " + (cls||""); m.textContent = text; if(cls !== "ok" && cls !== "bad") $("fact").hidden = true; }
+  // картка завжди про ту деталь, з якою щойно працював учень
+  function showFact(type, bad, text){
+    const P = PARTS[type], c = P.cat && !bad ? CAT[P.cat] : null;
+    const f = $("fact");
+    f.className = "fact " + (bad ? "bad" : "good");
+    f.innerHTML = `${icon(type)}<div><b>${esc(P.name)}</b><p>${esc(bad ? text : P.fact)}</p>${c?`<span class="cat" style="background:${c[1]}">${c[0]}</span>`:""}</div>`;
+    f.hidden = false;
+  }
+
+  /* ===================== ЗВУК ===================== */
+  let actx;
+  function tone(freqs, type, vol, step, len){
+    if(!sound) return;
+    try{
+      actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+      freqs.forEach((f,i)=>{ const o=actx.createOscillator(), g=actx.createGain(); o.type=type; o.frequency.value=f;
+        const t=actx.currentTime+i*step; g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+len);
+        o.connect(g).connect(actx.destination); o.start(t); o.stop(t+len+.02); });
+    }catch(e){}
+  }
+  const sndOk = ()=>tone([520,780],"sine",.18,.08,.14), sndBad = ()=>tone([220,170],"square",.06,.1,.18), sndWin = ()=>tone([523,659,784,1047],"triangle",.2,.12,.35);
+
+  /* ===================== ЛОГІКА ===================== */
+  function startTimer(){ if(t0 || finished) return; t0 = Date.now(); timer = setInterval(updStats, 500); }
+  function fail(text, type){
+    errors++; sndBad(); say("✗ Не туди!", "bad"); showFact(type, true, text);
+    const w = $("sceneWrap"); w.classList.remove("shake"); void w.offsetWidth; w.classList.add("shake");
+    updStats();
+  }
+  // якої деталі бракує, щоб для цієї з'явилося місце
+  function missingNeed(type){
+    const own = S().zones.filter(z=>z.accepts===type);
+    if(own.some(available)) return null;
+    const need = own[0] && own[0].requires;
+    return need && !placedTypes().has(need) ? need : null;
+  }
+  // zoneId: куди поклали; inside: чи відпустили над схемою
+  function tryPlace(uid, zoneId, inside){
+    if(finished) return false;
+    startTimer();
+    const it = items.find(i=>i.uid===uid); if(!it || it.zone) return false;
+    const P = PARTS[it.type];
+    if(zoneId){
+      const z = zoneById(zoneId);
+      if(!z || !available(z)) return false;
+      if(z.accepts === it.type){
+        it.zone = z.id; lastPlaced = uid; selected = null; sndOk();
+        say("✓ Правильно!", "ok"); showFact(it.type); render();
+        if(items.every(i=>i.zone)) stageDone();
+        return true;
+      }
+      const need = missingNeed(it.type);
+      if(need){ fail(NEED[need] || "Спочатку встанови іншу деталь.", it.type); return false; }
+      fail(hard ? `Це ${z.what}. Ця деталь сюди не підходить.` : `Це ${z.what}. ${P.where}`, it.type);
+      return false;
+    }
+    if(inside){
+      const need = missingNeed(it.type);
+      if(need){ fail(NEED[need] || "Спочатку встанови іншу деталь.", it.type); return false; }
+      if(S().zones.some(z=>z.accepts===it.type && available(z))) say("Поклади деталь точно на позначене місце.", "");
+    }
+    return false;
+  }
+  function stageDone(){
+    if(stage === 1){ say("Системний блок зібрано! Натисни «Далі».", "ok"); return; }
+    finished = true; tEnd = Date.now(); clearInterval(timer); updStats(); render();
+    say("Усе на місцях! Увімкни комп'ютер.", "ok");
+    if(window.Kimnata) Kimnata.report({errors, secs:Math.round(elapsed()), hard});
+  }
+
+  /* ---------- запуск ---------- */
+  let booted = false;
+  function bootUp(){
+    if(booted) return; booted = true; renderSteps(); sndWin();
+    $("powerBtn").disabled = true;
+    const led = svg.querySelector("#pwrLed"); if(led) led.setAttribute("fill","#4ADE80");
+    const [x,y] = rectOf(zoneById("monitor")), sx = x+10, sy = y+10;
+    const g = document.createElementNS("http://www.w3.org/2000/svg","g"); svg.appendChild(g);
+    g.innerHTML = `<rect x="${sx}" y="${sy}" width="300" height="175" rx="4" fill="#000"/>`;
+    const lines = ["Самоперевірка…", "Процесор ............ OK", "Оперативна пам'ять  16 ГБ OK", "Відеокарта .......... OK", "SSD 512 ГБ ......... OK", "HDD 1 ТБ ............ OK", "Клавіатура, миша .... OK", "Завантаження системи…"];
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    lines.forEach((l,i)=>setTimeout(()=>{
+      const t = document.createElementNS("http://www.w3.org/2000/svg","text");
+      t.setAttribute("x", sx+12); t.setAttribute("y", sy+22+i*19); t.setAttribute("font-size","13"); t.setAttribute("fill", i===0||i===7 ? "#FFC233" : "#7CF0A6");
+      t.setAttribute("font-family","JetBrains Mono, Consolas, monospace"); t.textContent = l; g.appendChild(t);
+    }, reduce ? 0 : 300 + i*330));
+    setTimeout(()=>{
+      g.innerHTML = `<defs><linearGradient id="dsk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2F6BFF"/><stop offset="1" stop-color="#7C4DFF"/></linearGradient></defs>
+      <rect x="${sx}" y="${sy}" width="300" height="175" rx="4" fill="url(#dsk)"/>
+      ${[0,1,2].map(i=>`<rect x="${sx+14}" y="${sy+14+i*36}" width="26" height="26" rx="5" fill="#fff" opacity=".85"/>`).join("")}
+      <rect x="${sx}" y="${sy+155}" width="300" height="20" fill="#1A1B4B" opacity=".6"/>
+      <text x="${sx+165}" y="${sy+78}" text-anchor="middle" font-size="22" font-weight="900" fill="#fff">Привіт! 👋</text>
+      <text x="${sx+165}" y="${sy+104}" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">Комп'ютер працює</text>`;
+      setTimeout(showResult, reduce ? 300 : 1300);
+    }, reduce ? 400 : 300 + lines.length*330 + 500);
+  }
+  function showResult(){
+    const s = elapsed(), stars = errors === 0 ? 3 : errors <= 3 ? 2 : 1;
+    $("stars").innerHTML = [1,2,3].map(i=>`<span class="${i<=stars?"":"off"}">⭐</span>`).join("");
+    $("dTitle").textContent = stars === 3 ? "Ідеальне складання!" : "Комп'ютер зібрано!";
+    $("dText").textContent = stars === 3 ? "Жодної помилки — справжній майстер!" : stars === 2 ? "Майже без помилок. Спробуй ще раз — на три зірки!" : "Повтори, яка деталь для чого, і спробуй ще раз.";
+    $("rTime").textContent = fmt(s); $("rErr").textContent = errors;
+    const key = "zbery-best" + (hard ? "-hard" : ""); let best = null;
+    try{ best = Number(localStorage.getItem(key)) || null; if(errors === 0 && (!best || s < best)){ best = Math.round(s); localStorage.setItem(key, best); } }catch(e){}
+    $("rBest").textContent = best ? fmt(best) : "—";
+    $("done").showModal();
+  }
+  function restart(){
+    if($("done").open) $("done").close();
+    stage = 1; errors = 0; t0 = 0; tEnd = 0; clearInterval(timer); finished = false; booted = false;
+    setupStage();
+  }
+
+  /* ===================== ПЕРЕТЯГУВАННЯ ===================== */
+  let drag = null, suppressClick = false;
+  function zoneAt(x, y){ const el = document.elementFromPoint(x, y); return el && el.closest ? el.closest("[data-zone]") : null; }
+  function overScene(x, y){ const r = svg.getBoundingClientRect(); return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom; }
+  function setHover(el){ svg.querySelectorAll(".zone.hover").forEach(z=>z!==el && z.classList.remove("hover")); if(el) el.classList.add("hover"); }
+
+  $("tray").addEventListener("pointerdown", e=>{
+    const el = e.target.closest(".part"); if(!el || e.button > 0 || finished) return;
+    const r = el.getBoundingClientRect();
+    drag = {el, uid:el.dataset.uid, sx:e.clientX, sy:e.clientY, dx:Math.min(e.clientX-r.left, 65), dy:Math.min(e.clientY-r.top, 50), moved:false, ghost:null};
+  });
+  window.addEventListener("pointermove", e=>{
+    if(!drag) return;
+    if(!drag.moved){
+      if(Math.hypot(e.clientX-drag.sx, e.clientY-drag.sy) < 7) return;
+      drag.moved = true; startTimer();
+      if(selected){ selected = null; document.querySelectorAll(".part.sel").forEach(p=>p.classList.remove("sel")); svg.querySelectorAll(".zone.armed").forEach(z=>z.classList.remove("armed")); }
+      const g = drag.el.cloneNode(true); g.classList.add("ghost"); g.classList.remove("sel"); document.body.appendChild(g);
+      drag.ghost = g; drag.el.classList.add("lifting");
+    }
+    e.preventDefault();
+    drag.ghost.style.transform = `translate(${e.clientX-drag.dx}px, ${e.clientY-drag.dy}px) rotate(-3deg)`;
+    setHover(zoneAt(e.clientX, e.clientY));
+  }, {passive:false});
+  function endDrag(e){
+    if(!drag) return;
+    const d = drag; drag = null;
+    if(!d.moved) return;
+    suppressClick = true; setTimeout(()=>suppressClick=false, 60);
+    setHover(null);
+    const cancel = e.type === "pointercancel";
+    const z = cancel ? null : zoneAt(e.clientX, e.clientY);
+    const ok = cancel ? false : tryPlace(d.uid, z && z.dataset.zone, overScene(e.clientX, e.clientY));
+    if(ok){ d.ghost.remove(); return; }
+    const r = d.el.getBoundingClientRect();
+    d.ghost.classList.add("fly"); d.ghost.style.transform = `translate(${r.left}px, ${r.top}px)`;
+    setTimeout(()=>{ d.ghost.remove(); d.el.classList.remove("lifting"); }, 260);
+  }
+  window.addEventListener("pointerup", endDrag);
+  window.addEventListener("pointercancel", endDrag);
+  document.addEventListener("dragstart", e=>e.preventDefault());
+
+  /* ---------- торкання / клавіатура ---------- */
+  $("tray").addEventListener("click", e=>{
+    const el = e.target.closest(".part"); if(!el || suppressClick || finished) return;
+    startTimer();
+    selected = selected === el.dataset.uid ? null : el.dataset.uid;
+    if(selected) say(`Обрано «${PARTS[items.find(i=>i.uid===selected).type].name}». Тепер торкнись місця на схемі.`, "");
+    render();
+    if(selected) setTimeout(()=>svg.querySelector(".zone")?.scrollIntoView({block:"nearest", behavior:"smooth"}), 0);
+  });
+  svg.addEventListener("click", e=>{
+    if(!selected || suppressClick) return;
+    const z = e.target.closest("[data-zone]");
+    const uid = selected;
+    if(!tryPlace(uid, z && z.dataset.zone, true) && selected) render();
+  });
+  svg.addEventListener("keydown", e=>{
+    if((e.key === "Enter" || e.key === " ") && e.target.matches("[data-zone]")){ e.preventDefault(); e.target.dispatchEvent(new MouseEvent("click", {bubbles:true})); }
+  });
+
+  /* ---------- кнопки ---------- */
+  $("restartBtn").onclick = restart;
+  $("again").onclick = restart;
+  $("hardBtn").onclick = ()=>{ hard = !hard; $("hardBtn").setAttribute("aria-pressed", hard); render(); };
+  $("soundBtn").onclick = ()=>{ sound = !sound; $("soundBtn").setAttribute("aria-pressed", sound); $("soundBtn").textContent = "Звук: "+(sound?"увімк.":"вимк."); };
+
+  restart();
+  if(window.Kimnata) Kimnata.attach("assembly", {
+    onJoin(room){
+      hard = !!(room.settings && room.settings.hard);
+      $("hardBtn").setAttribute("aria-pressed", hard); $("hardBtn").disabled = true; $("lockNote").hidden = false;
+      restart();
+    },
+    onLeave(){ $("hardBtn").disabled = false; $("lockNote").hidden = true; }
+  });
+</script>
+</body>
+</html>
