@@ -79,7 +79,8 @@
     .hint.warn{color:var(--bad)}
     .hint kbd{font-family:var(--mono); background:var(--soft); border:1.5px solid var(--line); border-bottom-width:3px; border-radius:6px; padding:0 7px; color:var(--ink)}
 
-    .cover{position:absolute; inset:0; border-radius:20px; display:none; place-items:center; text-align:center; padding:20px;
+    .textwrap{position:relative}
+    .cover{position:absolute; inset:-8px; border-radius:14px; display:none; place-items:center; text-align:center; padding:20px;
       background:color-mix(in srgb, var(--card) 82%, transparent); backdrop-filter:blur(2px); cursor:pointer}
     .cover.show{display:grid}
     .cover b{display:block; font-size:clamp(20px,2.4vw,26px); font-weight:900}
@@ -179,7 +180,10 @@
   <section class="trainer" id="trainer">
     <div id="work">
       <div class="progress"><i id="bar"></i></div>
-      <div class="text" id="text" aria-label="Текст для друку"></div>
+      <div class="textwrap">
+        <div class="text" id="text" aria-label="Текст для друку"></div>
+        <div class="cover" id="cover"><div><b>Натисни тут і почни друкувати</b><span>Час піде з першої натиснутої клавіші</span></div></div>
+      </div>
       <div class="hint" id="hint" aria-live="polite"></div>
       <div class="actions">
         <button class="btn" id="restartBtn">Почати знову (Esc)</button>
@@ -196,7 +200,6 @@
         <button class="btn" id="levelUpBtn">Наступний рівень →</button>
       </div>
     </div>
-    <div class="cover" id="cover"><div><b>Натисни тут і почни друкувати</b><span>Час піде з першої натиснутої клавіші</span></div></div>
     <input id="typer" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Поле для друку">
   </section>
 
@@ -616,6 +619,8 @@
   segInit("levelSeg", setLevel);
   $("restartBtn").onclick = ()=>start(false);
   $("newBtn").onclick = ()=>start(true);
+  // кнопки не забирають фокус у поля для друку — тоді заставка не перекриває їх посеред кліку
+  document.querySelectorAll("#work .actions .btn").forEach(b=>b.addEventListener("mousedown", e=>e.preventDefault()));
   $("againBtn").onclick = ()=>start(false);
   $("nextTextBtn").onclick = ()=>start(true);
   $("levelUpBtn").onclick = ()=>setLevel(level+1);
