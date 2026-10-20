@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#2B1F7A">
 <title>Інформатика — Володимирська гімназія №3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,6 +49,9 @@ main{max-width:1100px; margin:-48px auto 0; padding:0 clamp(16px,4vw,48px) 48px}
 .filters button{font:inherit; font-weight:800; border:2px solid var(--line); background:var(--card); color:var(--ink);
   border-radius:12px; padding:6px 14px; cursor:pointer}
 .filters button[aria-pressed="true"]{background:var(--blue); border-color:var(--blue); color:#fff}
+.filters button span{display:inline-block; min-width:22px; margin-left:6px; padding:0 6px; border-radius:8px; font-size:13px;
+  background:var(--page); color:var(--muted)}
+.filters button[aria-pressed="true"] span{background:rgba(255,255,255,.25); color:#fff}
 
 .games{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px; list-style:none; margin:0; padding:0}
 .game{display:flex; flex-direction:column; gap:10px; height:100%; padding:20px; border-radius:20px; text-decoration:none; color:inherit;
@@ -94,7 +101,7 @@ footer a{color:inherit}
   <section class="panel" aria-labelledby="gamesTitle">
     <h2 id="gamesTitle">Ігри та тренажери</h2>
     <p>Обери гру й відкрий її на комп'ютері, планшеті або телефоні.</p>
-    <div class="filters" id="filters" role="group" aria-label="Фільтр за класом" hidden></div>
+    <div class="filters" id="filters" role="group" aria-label="Фільтр за темою" hidden></div>
     <ul class="games" id="games"></ul>
   </section>
 </main>
@@ -124,14 +131,17 @@ document.getElementById("joinForm").addEventListener("submit", async e=>{
    Щоб додати нову гру:
    1) завантаж її .html-файл у той самий репозиторій;
    2) скопіюй блок { ... } нижче, встав після останнього (через кому)
-      і зміни назву, опис, клас, тему, значок і назву файлу.
+      і зміни назву, опис, теми, значок і назву файлу.
+   Теми (tags) — це мітки на плитці й кнопки фільтра. Гра може мати
+   кілька тем: tags: ["Безпека в Інтернеті", "Інтернет"].
+   Поле grade (клас) поки не показується на сайті.
    ================================================================ */
 const GAMES = [
   {
     title: "Наведи лад на робочому столі",
     desc:  "Розклади файли по кошиках за типом даних: текст, таблиці, презентації, зображення, звук і відео.",
     grade: "5 клас",
-    topic: "Файли та розширення",
+    tags:  ["Файли та розширення", "Типи даних"],
     icon:  "🗂️",
     file:  "sortuvannia-failiv.html"
   },
@@ -139,7 +149,7 @@ const GAMES = [
     title: "Юний кібердетектив",
     desc:  "П'ять справ про безпеку в Інтернеті: надійні паролі, шахрайські повідомлення, незнайомці в чаті та що можна публікувати.",
     grade: "5 клас",
-    topic: "Безпека в Інтернеті",
+    tags:  ["Безпека в Інтернеті"],
     icon:  "🕵️",
     file:  "kiberdetektyv.html"
   },
@@ -147,7 +157,7 @@ const GAMES = [
     title: "Клавіатурний тренажер",
     desc:  "Друкуй тексти українською та англійською на час. Чотири рівні: від основного ряду клавіш до цілих текстів.",
     grade: "5 клас",
-    topic: "Клавіатура",
+    tags:  ["Клавіатура"],
     icon:  "⌨️",
     file:  "klaviaturnyi-trenazher.html"
   },
@@ -155,32 +165,40 @@ const GAMES = [
     title: "Збери комп'ютер",
     desc:  "Склади системний блок із деталей — материнська плата, процесор, пам'ять, відеокарта — і під'єднай периферію. Потім увімкни комп'ютер!",
     grade: "5 клас",
-    topic: "Будова комп'ютера",
+    tags:  ["Будова комп'ютера", "Пристрої введення-виведення"],
     icon:  "🖥️",
     file:  "zbery-kompiuter.html"
   },
 ];
 
 const list = document.getElementById("games"), filters = document.getElementById("filters");
-let current = "Усі";
+const ALL = "Усі";
+let current = ALL;
+try{ current = sessionStorage.getItem("games-tag") || ALL; }catch(e){}
 function esc(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+const tagsOf = g => [].concat(g.tags || g.topic || []);
+const allTags = [...new Set(GAMES.flatMap(tagsOf))];
+if(current !== ALL && !allTags.includes(current)) current = ALL;
+
 function render(){
-  list.innerHTML = GAMES.filter(g => current==="Усі" || g.grade===current).map(g => `
+  const shown = GAMES.filter(g => current === ALL || tagsOf(g).includes(current));
+  list.innerHTML = shown.map(g => `
     <li><a class="game" href="${esc(g.file)}">
       <div class="g-top"><span class="g-icon" aria-hidden="true">${esc(g.icon)}</span><h3 class="g-title">${esc(g.title)}</h3></div>
       <p class="g-desc">${esc(g.desc)}</p>
-      <div class="g-meta"><span class="tag grade">${esc(g.grade)}</span><span class="tag">${esc(g.topic)}</span></div>
+      <div class="g-meta">${tagsOf(g).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>
       <span class="play">Грати</span>
     </a></li>`).join("");
+  filters.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.tag === current));
 }
-const grades = [...new Set(GAMES.map(g=>g.grade))];
-if(grades.length > 1){
+if(allTags.length > 1){
   filters.hidden = false;
-  filters.innerHTML = ["Усі", ...grades].map(g=>`<button aria-pressed="${g===current}">${esc(g)}</button>`).join("");
+  const count = t => t === ALL ? GAMES.length : GAMES.filter(g=>tagsOf(g).includes(t)).length;
+  filters.innerHTML = [ALL, ...allTags].map(t=>`<button data-tag="${esc(t)}">${esc(t)}<span>${count(t)}</span></button>`).join("");
   filters.addEventListener("click", e=>{
     const b = e.target.closest("button"); if(!b) return;
-    current = b.textContent;
-    filters.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===b));
+    current = b.dataset.tag;
+    try{ sessionStorage.setItem("games-tag", current); }catch(err){}
     render();
   });
 }
