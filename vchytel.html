@@ -1,120 +1,120 @@
 <!doctype html>
 <html lang="uk">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="robots" content="noindex">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="theme-color" content="#2B1F7A">
-<title>Сторінка вчителя — кімнати</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=JetBrains+Mono:wght@700&display=swap&subset=cyrillic" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
-<script src="nalashtuvannia.js"></script>
-<script src="kimnata.js"></script>
-<style>
-:root{
-  --page:#EEF1FF; --ink:#1A1B4B; --muted:#585C8C; --card:#FFFFFF; --line:#D6DBF5; --soft:#F4F6FF;
-  --desk:#2B1F7A; --blue:#2F6BFF; --violet:#7C4DFF; --amber:#FFC233; --ok:#16A34A; --bad:#E5484D;
-  --font:"Nunito","Segoe UI",Arial,system-ui,sans-serif; --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){ --page:#13113A; --ink:#ECEBFF; --muted:#AEADDA; --card:#221F58; --line:#3A3680; --soft:#1A1749; }
-}
-:root[data-theme="dark"]{ --page:#13113A; --ink:#ECEBFF; --muted:#AEADDA; --card:#221F58; --line:#3A3680; --soft:#1A1749; }
-*,*::before,*::after{box-sizing:inherit}
-html{height:100%; scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0; min-height:100%; background:var(--page); color:var(--ink); font-family:var(--font)}
-button,input,select{font:inherit; color:inherit}
-:focus-visible{outline:3px solid var(--amber); outline-offset:3px}
-[hidden]{display:none !important}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#2B1F7A">
+  <title>Сторінка вчителя — кімнати</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=JetBrains+Mono:wght@700&display=swap&subset=cyrillic" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
+  <script src="nalashtuvannia.js"></script>
+  <script src="kimnata.js"></script>
+  <style>
+    :root{
+      --page:#EEF1FF; --ink:#1A1B4B; --muted:#585C8C; --card:#FFFFFF; --line:#D6DBF5; --soft:#F4F6FF;
+      --desk:#2B1F7A; --blue:#2F6BFF; --violet:#7C4DFF; --amber:#FFC233; --ok:#16A34A; --bad:#E5484D;
+      --font:"Nunito","Segoe UI",Arial,system-ui,sans-serif; --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+      box-sizing:border-box;
+      padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+    }
+    @media (prefers-color-scheme: dark){
+      :root:not([data-theme="light"]){ --page:#13113A; --ink:#ECEBFF; --muted:#AEADDA; --card:#221F58; --line:#3A3680; --soft:#1A1749; }
+    }
+    :root[data-theme="dark"]{ --page:#13113A; --ink:#ECEBFF; --muted:#AEADDA; --card:#221F58; --line:#3A3680; --soft:#1A1749; }
+    *,*::before,*::after{box-sizing:inherit}
+    html{height:100%; scroll-padding-top:env(safe-area-inset-top,0px)}
+    body{margin:0; min-height:100%; background:var(--page); color:var(--ink); font-family:var(--font)}
+    button,input,select{font:inherit; color:inherit}
+    :focus-visible{outline:3px solid var(--amber); outline-offset:3px}
+    [hidden]{display:none !important}
 
-/* ---------- manage view ---------- */
-.wrap{max-width:1100px; margin:0 auto; padding:18px clamp(16px,3vw,32px) 48px; display:flex; flex-direction:column; gap:18px}
-.home{font-weight:800; font-size:15px; color:var(--blue); text-decoration:none}
-h1{margin:4px 0 0; font-size:clamp(28px,3.6vw,40px); font-weight:900; line-height:1.1}
-.sub{margin:4px 0 0; color:var(--muted); font-weight:700}
-.banner{background:color-mix(in srgb, var(--amber) 28%, var(--card)); border:2px solid var(--amber); border-radius:16px; padding:12px 16px; font-weight:700; line-height:1.45}
-.banner b{font-weight:900}
-.panel{background:var(--card); border:2px solid var(--line); border-radius:22px; padding:clamp(16px,3vw,26px)}
-.panel h2{margin:0 0 14px; font-size:24px; font-weight:900}
-.form{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; align-items:end}
-.field label{display:block; font-size:14px; font-weight:900; color:var(--muted); margin-bottom:6px}
-.field input,.field select{width:100%; border:2px solid var(--line); background:var(--card); border-radius:12px; padding:10px 12px; font-weight:800; font-size:16px}
-.check{display:flex; gap:8px; align-items:center; font-weight:800; padding:10px 0}
-.check input{width:20px; height:20px}
-.btn{border:2px solid var(--line); background:var(--card); border-radius:12px; padding:9px 16px; font-weight:800; font-size:15px; cursor:pointer; white-space:nowrap}
-.btn.primary{background:var(--blue); border-color:var(--blue); color:#fff}
-.btn.big{padding:12px 22px; font-size:17px}
-.btn.danger{color:var(--bad)}
-.msg{min-height:22px; font-weight:800; margin-top:10px}
-.msg.bad{color:var(--bad)} .msg.ok{color:var(--ok)}
+    /* ---------- manage view ---------- */
+    .wrap{max-width:1100px; margin:0 auto; padding:18px clamp(16px,3vw,32px) 48px; display:flex; flex-direction:column; gap:18px}
+    .home{font-weight:800; font-size:15px; color:var(--blue); text-decoration:none}
+    h1{margin:4px 0 0; font-size:clamp(28px,3.6vw,40px); font-weight:900; line-height:1.1}
+    .sub{margin:4px 0 0; color:var(--muted); font-weight:700}
+    .banner{background:color-mix(in srgb, var(--amber) 28%, var(--card)); border:2px solid var(--amber); border-radius:16px; padding:12px 16px; font-weight:700; line-height:1.45}
+    .banner b{font-weight:900}
+    .panel{background:var(--card); border:2px solid var(--line); border-radius:22px; padding:clamp(16px,3vw,26px)}
+    .panel h2{margin:0 0 14px; font-size:24px; font-weight:900}
+    .form{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; align-items:end}
+    .field label{display:block; font-size:14px; font-weight:900; color:var(--muted); margin-bottom:6px}
+    .field input,.field select{width:100%; border:2px solid var(--line); background:var(--card); border-radius:12px; padding:10px 12px; font-weight:800; font-size:16px}
+    .check{display:flex; gap:8px; align-items:center; font-weight:800; padding:10px 0}
+    .check input{width:20px; height:20px}
+    .btn{border:2px solid var(--line); background:var(--card); border-radius:12px; padding:9px 16px; font-weight:800; font-size:15px; cursor:pointer; white-space:nowrap}
+    .btn.primary{background:var(--blue); border-color:var(--blue); color:#fff}
+    .btn.big{padding:12px 22px; font-size:17px}
+    .btn.danger{color:var(--bad)}
+    .msg{min-height:22px; font-weight:800; margin-top:10px}
+    .msg.bad{color:var(--bad)} .msg.ok{color:var(--ok)}
 
-.rooms{display:grid; gap:12px}
-.room{display:grid; grid-template-columns:auto 1fr auto; gap:6px 18px; align-items:center; border:2px solid var(--line); border-radius:18px; padding:14px 16px; background:var(--soft)}
-.room.closed{opacity:.7}
-.r-code{font-family:var(--mono); font-size:32px; font-weight:700; color:var(--blue); letter-spacing:2px}
-.r-name{font-size:19px; font-weight:900}
-.r-meta{color:var(--muted); font-weight:700; font-size:14px}
-.pill{display:inline-block; font-size:12px; font-weight:900; border-radius:8px; padding:1px 8px; margin-left:6px; vertical-align:2px}
-.pill.on{background:var(--ok); color:#fff} .pill.off{background:var(--muted); color:#fff}
-.r-actions{display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end}
-.empty{color:var(--muted); font-weight:700}
-@media (max-width:720px){ .room{grid-template-columns:1fr} .r-actions{justify-content:flex-start} }
+    .rooms{display:grid; gap:12px}
+    .room{display:grid; grid-template-columns:auto 1fr auto; gap:6px 18px; align-items:center; border:2px solid var(--line); border-radius:18px; padding:14px 16px; background:var(--soft)}
+    .room.closed{opacity:.7}
+    .r-code{font-family:var(--mono); font-size:32px; font-weight:700; color:var(--blue); letter-spacing:2px}
+    .r-name{font-size:19px; font-weight:900}
+    .r-meta{color:var(--muted); font-weight:700; font-size:14px}
+    .pill{display:inline-block; font-size:12px; font-weight:900; border-radius:8px; padding:1px 8px; margin-left:6px; vertical-align:2px}
+    .pill.on{background:var(--ok); color:#fff} .pill.off{background:var(--muted); color:#fff}
+    .r-actions{display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end}
+    .empty{color:var(--muted); font-weight:700}
+    @media (max-width:720px){ .room{grid-template-columns:1fr} .r-actions{justify-content:flex-start} }
 
-.keybox{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
-.keybox code{font-family:var(--mono); font-size:16px; background:var(--soft); border:2px solid var(--line); border-radius:10px; padding:8px 12px; word-break:break-all}
-.keyrow{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
-.keyrow input{flex:1 1 260px; font-family:var(--mono); border:2px solid var(--line); background:var(--card); border-radius:12px; padding:9px 12px; font-size:15px}
-.hintp{margin:0 0 12px; color:var(--muted); font-weight:700; line-height:1.45}
-details summary{cursor:pointer; font-size:20px; font-weight:900; list-style:none}
-details summary::-webkit-details-marker{display:none}
-details summary::before{content:"▸ "; color:var(--blue)}
-details[open] summary::before{content:"▾ "}
+    .keybox{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+    .keybox code{font-family:var(--mono); font-size:16px; background:var(--soft); border:2px solid var(--line); border-radius:10px; padding:8px 12px; word-break:break-all}
+    .keyrow{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+    .keyrow input{flex:1 1 260px; font-family:var(--mono); border:2px solid var(--line); background:var(--card); border-radius:12px; padding:9px 12px; font-size:15px}
+    .hintp{margin:0 0 12px; color:var(--muted); font-weight:700; line-height:1.45}
+    details summary{cursor:pointer; font-size:20px; font-weight:900; list-style:none}
+    details summary::-webkit-details-marker{display:none}
+    details summary::before{content:"▸ "; color:var(--blue)}
+    details[open] summary::before{content:"▾ "}
 
-/* ---------- board view (big screen) ---------- */
-body.board-mode{background:#17124A; color:#fff}
-.board{min-height:100vh; display:grid; grid-template-columns:minmax(260px,30%) 1fr; gap:clamp(16px,2.5vw,36px); padding:clamp(16px,2.5vw,36px)}
-.b-side{display:flex; flex-direction:column; gap:16px}
-.b-tools{display:flex; flex-wrap:wrap; gap:6px}
-.b-tools .btn{background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.2); color:#fff; font-size:14px; padding:6px 12px}
-.b-card{background:rgba(255,255,255,.07); border:2px solid rgba(255,255,255,.12); border-radius:24px; padding:clamp(16px,2vw,26px)}
-.b-game{font-size:clamp(16px,1.5vw,22px); font-weight:800; color:#B9A6FF}
-.b-name{font-size:clamp(24px,2.6vw,40px); font-weight:900; line-height:1.1; margin:4px 0 6px}
-.b-set{font-weight:700; color:#C9CAF2; font-size:clamp(14px,1.2vw,18px)}
-.b-codelbl{font-weight:900; letter-spacing:2px; font-size:clamp(13px,1.1vw,16px); color:#C9CAF2}
-.b-code{font-family:var(--mono); font-weight:700; font-size:clamp(64px,8vw,128px); line-height:1; color:#FFC233; letter-spacing:6px}
-.b-how{font-weight:700; color:#E3E3FF; line-height:1.45; font-size:clamp(14px,1.2vw,18px); margin:10px 0 0}
-.b-qr{background:#fff; border-radius:16px; padding:10px; width:min(220px,100%); align-self:flex-start}
-.b-qr svg{display:block; width:100%; height:auto}
-.b-closed{background:var(--bad); color:#fff; font-weight:900; border-radius:12px; padding:8px 14px; text-align:center}
+    /* ---------- board view (big screen) ---------- */
+    body.board-mode{background:#17124A; color:#fff}
+    .board{min-height:100vh; display:grid; grid-template-columns:minmax(260px,30%) 1fr; gap:clamp(16px,2.5vw,36px); padding:clamp(16px,2.5vw,36px)}
+    .b-side{display:flex; flex-direction:column; gap:16px}
+    .b-tools{display:flex; flex-wrap:wrap; gap:6px}
+    .b-tools .btn{background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.2); color:#fff; font-size:14px; padding:6px 12px}
+    .b-card{background:rgba(255,255,255,.07); border:2px solid rgba(255,255,255,.12); border-radius:24px; padding:clamp(16px,2vw,26px)}
+    .b-game{font-size:clamp(16px,1.5vw,22px); font-weight:800; color:#B9A6FF}
+    .b-name{font-size:clamp(24px,2.6vw,40px); font-weight:900; line-height:1.1; margin:4px 0 6px}
+    .b-set{font-weight:700; color:#C9CAF2; font-size:clamp(14px,1.2vw,18px)}
+    .b-codelbl{font-weight:900; letter-spacing:2px; font-size:clamp(13px,1.1vw,16px); color:#C9CAF2}
+    .b-code{font-family:var(--mono); font-weight:700; font-size:clamp(64px,8vw,128px); line-height:1; color:#FFC233; letter-spacing:6px}
+    .b-how{font-weight:700; color:#E3E3FF; line-height:1.45; font-size:clamp(14px,1.2vw,18px); margin:10px 0 0}
+    .b-qr{background:#fff; border-radius:16px; padding:10px; width:min(220px,100%); align-self:flex-start}
+    .b-qr svg{display:block; width:100%; height:auto}
+    .b-closed{background:var(--bad); color:#fff; font-weight:900; border-radius:12px; padding:8px 14px; text-align:center}
 
-.b-main{display:flex; flex-direction:column; min-width:0}
-.b-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:12px}
-.b-head h2{margin:0; font-size:clamp(30px,3.4vw,52px); font-weight:900}
-.b-upd{color:#C9CAF2; font-weight:700; font-size:clamp(13px,1.1vw,16px)}
-.b-upd i{display:inline-block; width:10px; height:10px; border-radius:50%; background:#2EE07A; margin-right:6px; vertical-align:0}
-.b-upd.err i{background:var(--bad)}
-.lb{width:100%; border-collapse:separate; border-spacing:0 8px; font-size:clamp(18px,1.9vw,30px)}
-.lb th{text-align:left; color:#C9CAF2; font-size:clamp(12px,1vw,16px); font-weight:900; padding:0 16px; text-transform:uppercase; letter-spacing:1px}
-.lb td{background:rgba(255,255,255,.08); padding:clamp(8px,1vw,14px) 16px; font-weight:800; font-variant-numeric:tabular-nums; white-space:nowrap}
-.lb td:first-child{border-radius:14px 0 0 14px; width:1%; text-align:center; font-weight:900}
-.lb td:last-child{border-radius:0 14px 14px 0}
-.lb td.nm{white-space:normal; width:40%}
-.lb .num{text-align:right}
-.lb td.main{color:#FFC233; font-weight:900; font-size:1.15em}
-.lb tr.p1 td{background:rgba(255,194,51,.28)} .lb tr.p2 td{background:rgba(220,226,255,.20)} .lb tr.p3 td{background:rgba(214,139,74,.26)}
-.lb tr.fresh td{animation:fresh 2.2s ease-out}
-@keyframes fresh{0%{background:rgba(46,224,122,.75)} 100%{}}
-.b-empty{font-size:clamp(18px,1.8vw,26px); color:#C9CAF2; font-weight:800; padding:40px 0; text-align:center}
-@media (max-width:860px){ .board{grid-template-columns:1fr} .b-qr{width:160px} }
-@media (prefers-reduced-motion: reduce){ *{animation:none !important} }
-</style>
+    .b-main{display:flex; flex-direction:column; min-width:0}
+    .b-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:12px}
+    .b-head h2{margin:0; font-size:clamp(30px,3.4vw,52px); font-weight:900}
+    .b-upd{color:#C9CAF2; font-weight:700; font-size:clamp(13px,1.1vw,16px)}
+    .b-upd i{display:inline-block; width:10px; height:10px; border-radius:50%; background:#2EE07A; margin-right:6px; vertical-align:0}
+    .b-upd.err i{background:var(--bad)}
+    .lb{width:100%; border-collapse:separate; border-spacing:0 8px; font-size:clamp(18px,1.9vw,30px)}
+    .lb th{text-align:left; color:#C9CAF2; font-size:clamp(12px,1vw,16px); font-weight:900; padding:0 16px; text-transform:uppercase; letter-spacing:1px}
+    .lb td{background:rgba(255,255,255,.08); padding:clamp(8px,1vw,14px) 16px; font-weight:800; font-variant-numeric:tabular-nums; white-space:nowrap}
+    .lb td:first-child{border-radius:14px 0 0 14px; width:1%; text-align:center; font-weight:900}
+    .lb td:last-child{border-radius:0 14px 14px 0}
+    .lb td.nm{white-space:normal; width:40%}
+    .lb .num{text-align:right}
+    .lb td.main{color:#FFC233; font-weight:900; font-size:1.15em}
+    .lb tr.p1 td{background:rgba(255,194,51,.28)} .lb tr.p2 td{background:rgba(220,226,255,.20)} .lb tr.p3 td{background:rgba(214,139,74,.26)}
+    .lb tr.fresh td{animation:fresh 2.2s ease-out}
+    @keyframes fresh{0%{background:rgba(46,224,122,.75)} 100%{}}
+    .b-empty{font-size:clamp(18px,1.8vw,26px); color:#C9CAF2; font-weight:800; padding:40px 0; text-align:center}
+    @media (max-width:860px){ .board{grid-template-columns:1fr} .b-qr{width:160px} }
+    @media (prefers-reduced-motion: reduce){ *{animation:none !important} }
+  </style>
 </head>
 <body>
 
@@ -200,71 +200,71 @@ body.board-mode{background:#17124A; color:#fff}
 </div>
 
 <script>
-const K = window.Kimnata, $ = id => document.getElementById(id);
-const DEMO = K.demo;
-function esc(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
-function fmt(s){ s = Math.round(Number(s)||0); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
-let myCodes = new Set(), master = false;
-function api(p){ p.owner = K.ownerKey(); return K.call(p); }
+  const K = window.Kimnata, $ = id => document.getElementById(id);
+  const DEMO = K.demo;
+  function esc(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+  function fmt(s){ s = Math.round(Number(s)||0); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
+  let myCodes = new Set(), master = false;
+  function api(p){ p.owner = K.ownerKey(); return K.call(p); }
 
-/* ---------------- ranking rules per game ---------------- */
-const RANK = {
-  typing: {
-    head: ["Швидкість, зн/хв","Точність","Спроб"],
-    cmp: (a,b)=> (b.speed||0)-(a.speed||0) || (b.acc||0)-(a.acc||0) || a.t-b.t,
-    cells: (b,n)=>[b.speed||0, (b.acc||0)+"%", n]
-  },
-  sorting: {
-    head: ["Правильно","Час","Спроб"],
-    cmp: (a,b)=> ((b.correct||0)/(b.total||1)) - ((a.correct||0)/(a.total||1)) || (a.secs||0)-(b.secs||0) || a.t-b.t,
-    cells: (b,n)=>[(b.correct||0)+" / "+(b.total||0), fmt(b.secs), n]
-  },
-  assembly: {
-    head: ["Помилки","Час","Спроб"],
-    cmp: (a,b)=> (a.errors||0)-(b.errors||0) || (a.secs||0)-(b.secs||0) || a.t-b.t,
-    cells: (b,n)=>[b.errors||0, fmt(b.secs), n]
-  },
-  detective: {
-    head: ["Бали","Час","Спроб"],
-    cmp: (a,b)=> (b.score||0)-(a.score||0) || (a.secs||0)-(b.secs||0) || a.t-b.t,
-    cells: (b,n)=>[(b.score||0)+" / "+(b.max||0), fmt(b.secs), n]
+  /* ---------------- ranking rules per game ---------------- */
+  const RANK = {
+    typing: {
+      head: ["Швидкість, зн/хв","Точність","Спроб"],
+      cmp: (a,b)=> (b.speed||0)-(a.speed||0) || (b.acc||0)-(a.acc||0) || a.t-b.t,
+      cells: (b,n)=>[b.speed||0, (b.acc||0)+"%", n]
+    },
+    sorting: {
+      head: ["Правильно","Час","Спроб"],
+      cmp: (a,b)=> ((b.correct||0)/(b.total||1)) - ((a.correct||0)/(a.total||1)) || (a.secs||0)-(b.secs||0) || a.t-b.t,
+      cells: (b,n)=>[(b.correct||0)+" / "+(b.total||0), fmt(b.secs), n]
+    },
+    assembly: {
+      head: ["Помилки","Час","Спроб"],
+      cmp: (a,b)=> (a.errors||0)-(b.errors||0) || (a.secs||0)-(b.secs||0) || a.t-b.t,
+      cells: (b,n)=>[b.errors||0, fmt(b.secs), n]
+    },
+    detective: {
+      head: ["Бали","Час","Спроб"],
+      cmp: (a,b)=> (b.score||0)-(a.score||0) || (a.secs||0)-(b.secs||0) || a.t-b.t,
+      cells: (b,n)=>[(b.score||0)+" / "+(b.max||0), fmt(b.secs), n]
+    }
+  };
+
+  /* ---------------- manage ---------------- */
+  function initManage(){
+    $("demoBanner").hidden = !DEMO;
+    $("fGame").innerHTML = Object.entries(K.games).map(([id,g])=>`<option value="${id}">${g.icon} ${esc(g.title)}</option>`).join("");
+    $("fGame").onchange = showOpts; showOpts();
+    unlock(); showKey();
   }
-};
+  function showOpts(){ const g = $("fGame").value; document.querySelectorAll(".opt").forEach(el=>el.hidden = el.dataset.game !== g); }
+  function unlock(){ $("admin").hidden = false; loadRooms(); }
+  let keyShown = false;
+  function showKey(){ $("keyVal").textContent = keyShown ? K.ownerKey() : "••••••••••••••••"; $("keyShow").textContent = keyShown ? "Сховати" : "Показати"; }
+  $("keyShow").onclick = ()=>{ keyShown = !keyShown; showKey(); };
+  $("keyCopy").onclick = async ()=>{
+    try{ await navigator.clipboard.writeText(K.ownerKey()); $("keyMsg").className = "msg ok"; $("keyMsg").textContent = "Ключ скопійовано."; }
+    catch(e){ keyShown = true; showKey(); $("keyMsg").className = "msg"; $("keyMsg").textContent = "Виділіть ключ і скопіюйте вручну (Ctrl+C)."; }
+  };
+  $("keySet").onclick = ()=>{
+    const v = $("keyIn").value.trim();
+    if(v.length < 4){ $("keyMsg").className = "msg bad"; $("keyMsg").textContent = "Вставте ключ."; return; }
+    if(!confirm("Замінити ключ цього комп'ютера? Кімнати зі старим ключем звідси буде не видно — збережіть його, якщо він ще потрібен.")) return;
+    K.setOwnerKey(v); $("keyIn").value = ""; showKey();
+    $("keyMsg").className = "msg ok"; $("keyMsg").textContent = "Ключ змінено."; loadRooms();
+  };
 
-/* ---------------- manage ---------------- */
-function initManage(){
-  $("demoBanner").hidden = !DEMO;
-  $("fGame").innerHTML = Object.entries(K.games).map(([id,g])=>`<option value="${id}">${g.icon} ${esc(g.title)}</option>`).join("");
-  $("fGame").onchange = showOpts; showOpts();
-  unlock(); showKey();
-}
-function showOpts(){ const g = $("fGame").value; document.querySelectorAll(".opt").forEach(el=>el.hidden = el.dataset.game !== g); }
-function unlock(){ $("admin").hidden = false; loadRooms(); }
-let keyShown = false;
-function showKey(){ $("keyVal").textContent = keyShown ? K.ownerKey() : "••••••••••••••••"; $("keyShow").textContent = keyShown ? "Сховати" : "Показати"; }
-$("keyShow").onclick = ()=>{ keyShown = !keyShown; showKey(); };
-$("keyCopy").onclick = async ()=>{
-  try{ await navigator.clipboard.writeText(K.ownerKey()); $("keyMsg").className = "msg ok"; $("keyMsg").textContent = "Ключ скопійовано."; }
-  catch(e){ keyShown = true; showKey(); $("keyMsg").className = "msg"; $("keyMsg").textContent = "Виділіть ключ і скопіюйте вручну (Ctrl+C)."; }
-};
-$("keySet").onclick = ()=>{
-  const v = $("keyIn").value.trim();
-  if(v.length < 4){ $("keyMsg").className = "msg bad"; $("keyMsg").textContent = "Вставте ключ."; return; }
-  if(!confirm("Замінити ключ цього комп'ютера? Кімнати зі старим ключем звідси буде не видно — збережіть його, якщо він ще потрібен.")) return;
-  K.setOwnerKey(v); $("keyIn").value = ""; showKey();
-  $("keyMsg").className = "msg ok"; $("keyMsg").textContent = "Ключ змінено."; loadRooms();
-};
-
-async function loadRooms(){
-  try{
-    const r = await api({action:"rooms"});
-    if(!r.ok) throw new Error(r.error);
-    const list = r.rooms || [];
-    myCodes = new Set(list.map(x=>x.code)); master = !!r.master;
-    $("masterNote").hidden = !master;
-    $("rooms").innerHTML = list.length ? list.map(room=>{
-      const g = K.games[room.game] || {title:room.game, icon:"🎮"};
-      return `<div class="room ${room.open?"":"closed"}">
+  async function loadRooms(){
+    try{
+      const r = await api({action:"rooms"});
+      if(!r.ok) throw new Error(r.error);
+      const list = r.rooms || [];
+      myCodes = new Set(list.map(x=>x.code)); master = !!r.master;
+      $("masterNote").hidden = !master;
+      $("rooms").innerHTML = list.length ? list.map(room=>{
+        const g = K.games[room.game] || {title:room.game, icon:"🎮"};
+        return `<div class="room ${room.open?"":"closed"}">
         <div class="r-code">${esc(room.code)}</div>
         <div><div class="r-name">${esc(room.name)} <span class="pill ${room.open?"on":"off"}">${room.open?"відкрита":"закрита"}</span></div>
           <div class="r-meta">${g.icon} ${esc(g.title)}${K.settingsText(room) ? " · "+esc(K.settingsText(room)) : ""} · ${new Date(room.created).toLocaleString("uk-UA",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</div></div>
@@ -274,129 +274,129 @@ async function loadRooms(){
           <button class="btn" data-a="clear" data-c="${esc(room.code)}">Очистити</button>
           <button class="btn danger" data-a="delete" data-c="${esc(room.code)}">Видалити</button>
         </div></div>`;
-    }).join("") : `<div class="empty">Кімнат ще немає — створіть першу вище.</div>`;
-  }catch(e){
-    $("rooms").innerHTML = `<div class="empty">Не вдалося завантажити кімнати. Перевіряю зв'язок…</div>`;
-    const why = K.diagnose ? await K.diagnose() : "Перевірте зв'язок із сервером.";
-    $("rooms").innerHTML = `<div class="empty">${esc(why)}</div>`;
+      }).join("") : `<div class="empty">Кімнат ще немає — створіть першу вище.</div>`;
+    }catch(e){
+      $("rooms").innerHTML = `<div class="empty">Не вдалося завантажити кімнати. Перевіряю зв'язок…</div>`;
+      const why = K.diagnose ? await K.diagnose() : "Перевірте зв'язок із сервером.";
+      $("rooms").innerHTML = `<div class="empty">${esc(why)}</div>`;
+    }
   }
-}
-$("rooms").addEventListener("click", async e=>{
-  const b = e.target.closest("button[data-a]"); if(!b) return;
-  const code = b.dataset.c, a = b.dataset.a;
-  if(a === "show"){ location.hash = code; return; }
-  if(a === "clear" && !confirm(`Видалити всі результати в кімнаті ${code}?`)) return;
-  if(a === "delete" && !confirm(`Видалити кімнату ${code} разом із результатами?`)) return;
-  b.disabled = true;
-  try{
-    const r = a === "toggle" ? await api({action:"setOpen", code, open: b.dataset.open !== "true"}) : await api({action:a, code});
-    if(!r.ok) alert(r.error || "Помилка");
-  }catch(err){ alert("Немає зв'язку із сервером"); }
-  loadRooms();
-});
-$("createBtn").onclick = async ()=>{
-  const game = $("fGame").value, settings = {};
-  if(game === "typing"){ settings.lang = $("fLang").value; settings.level = Number($("fLevel").value); }
-  if(game === "assembly"){ settings.hard = $("fHardA").checked; }
-  if(game === "sorting"){ settings.count = Number($("fCount").value); settings.hard = $("fHard").checked; }
-  $("createBtn").disabled = true; $("createMsg").className = "msg"; $("createMsg").textContent = "Створюю…";
-  try{
-    const r = await api({action:"create", name:$("fName").value, game, settings});
-    if(r.ok){ $("createMsg").className = "msg ok"; $("createMsg").textContent = `Кімнату ${r.room.code} створено.`; $("fName").value = ""; loadRooms(); }
-    else { $("createMsg").className = "msg bad"; $("createMsg").textContent = r.error || "Помилка"; }
-  }catch(e){ $("createMsg").className = "msg bad"; $("createMsg").textContent = "Немає зв'язку із сервером."; }
-  $("createBtn").disabled = false;
-};
+  $("rooms").addEventListener("click", async e=>{
+    const b = e.target.closest("button[data-a]"); if(!b) return;
+    const code = b.dataset.c, a = b.dataset.a;
+    if(a === "show"){ location.hash = code; return; }
+    if(a === "clear" && !confirm(`Видалити всі результати в кімнаті ${code}?`)) return;
+    if(a === "delete" && !confirm(`Видалити кімнату ${code} разом із результатами?`)) return;
+    b.disabled = true;
+    try{
+      const r = a === "toggle" ? await api({action:"setOpen", code, open: b.dataset.open !== "true"}) : await api({action:a, code});
+      if(!r.ok) alert(r.error || "Помилка");
+    }catch(err){ alert("Немає зв'язку із сервером"); }
+    loadRooms();
+  });
+  $("createBtn").onclick = async ()=>{
+    const game = $("fGame").value, settings = {};
+    if(game === "typing"){ settings.lang = $("fLang").value; settings.level = Number($("fLevel").value); }
+    if(game === "assembly"){ settings.hard = $("fHardA").checked; }
+    if(game === "sorting"){ settings.count = Number($("fCount").value); settings.hard = $("fHard").checked; }
+    $("createBtn").disabled = true; $("createMsg").className = "msg"; $("createMsg").textContent = "Створюю…";
+    try{
+      const r = await api({action:"create", name:$("fName").value, game, settings});
+      if(r.ok){ $("createMsg").className = "msg ok"; $("createMsg").textContent = `Кімнату ${r.room.code} створено.`; $("fName").value = ""; loadRooms(); }
+      else { $("createMsg").className = "msg bad"; $("createMsg").textContent = r.error || "Помилка"; }
+    }catch(e){ $("createMsg").className = "msg bad"; $("createMsg").textContent = "Немає зв'язку із сервером."; }
+    $("createBtn").disabled = false;
+  };
 
-/* ---------------- board ---------------- */
-let boardCode = null, timer = null, seen = null, room = null;
-function route(){
-  const code = location.hash.replace("#","").trim();
-  clearInterval(timer);
-  if(/^\d{4}$/.test(code)){
-    boardCode = code; seen = null; room = null;
-    document.body.classList.add("board-mode");
-    $("manage").hidden = true; $("board").hidden = false;
-    $("bTable").innerHTML = `<div class="b-empty">Завантаження…</div>`;
-    refresh(); timer = setInterval(refresh, DEMO ? 1500 : 3000);
-  } else {
-    boardCode = null;
-    document.body.classList.remove("board-mode");
-    $("board").hidden = true; $("manage").hidden = false;
-    if(!$("admin").hidden) loadRooms();
+  /* ---------------- board ---------------- */
+  let boardCode = null, timer = null, seen = null, room = null;
+  function route(){
+    const code = location.hash.replace("#","").trim();
+    clearInterval(timer);
+    if(/^\d{4}$/.test(code)){
+      boardCode = code; seen = null; room = null;
+      document.body.classList.add("board-mode");
+      $("manage").hidden = true; $("board").hidden = false;
+      $("bTable").innerHTML = `<div class="b-empty">Завантаження…</div>`;
+      refresh(); timer = setInterval(refresh, DEMO ? 1500 : 3000);
+    } else {
+      boardCode = null;
+      document.body.classList.remove("board-mode");
+      $("board").hidden = true; $("manage").hidden = false;
+      if(!$("admin").hidden) loadRooms();
+    }
   }
-}
-async function refresh(){
-  if(!boardCode) return;
-  try{
-    const r = await K.call({action:"board", code:boardCode});
-    if(!r.ok){ $("bTable").innerHTML = `<div class="b-empty">${esc(r.error || "Кімнату не знайдено")}</div>`; return; }
-    $("bUpd").className = "b-upd";
-    $("bUpd").innerHTML = `<i></i>Оновлено о ${new Date().toLocaleTimeString("uk-UA")}`;
-    drawRoom(r.room); drawTable(r.room, r.results || []);
-  }catch(e){
-    $("bUpd").className = "b-upd err"; $("bUpd").innerHTML = `<i></i>Немає зв'язку, пробую ще…`;
+  async function refresh(){
+    if(!boardCode) return;
+    try{
+      const r = await K.call({action:"board", code:boardCode});
+      if(!r.ok){ $("bTable").innerHTML = `<div class="b-empty">${esc(r.error || "Кімнату не знайдено")}</div>`; return; }
+      $("bUpd").className = "b-upd";
+      $("bUpd").innerHTML = `<i></i>Оновлено о ${new Date().toLocaleTimeString("uk-UA")}`;
+      drawRoom(r.room); drawTable(r.room, r.results || []);
+    }catch(e){
+      $("bUpd").className = "b-upd err"; $("bUpd").innerHTML = `<i></i>Немає зв'язку, пробую ще…`;
+    }
   }
-}
-function drawRoom(r){
-  const first = !room || room.code !== r.code;
-  room = r;
-  const g = K.games[r.game] || {title:r.game, icon:"🎮"};
-  $("bGame").textContent = g.icon + " " + g.title;
-  $("bName").textContent = r.name;
-  $("bSet").textContent = K.settingsText(r);
-  $("bCode").textContent = r.code;
-  $("bHow").innerHTML = `Відкрий сайт → гра «${esc(g.title)}» → <b>Приєднатися до кімнати</b> → введи код і своє ім'я.` + (window.qrcode ? " Або скануй QR-код:" : "");
-  $("bClosed").hidden = r.open;
-  $("bToggle").textContent = r.open ? "Закрити кімнату" : "Відкрити кімнату";
-  $("bToggle").hidden = !myCodes.has(r.code);
-  if(first) drawQr(r);
-}
-function drawQr(r){
-  const box = $("bQr");
-  if(!window.qrcode || location.protocol === "file:"){ box.hidden = true; return; }
-  try{ const q = qrcode(0, "M"); q.addData(K.link(r)); q.make(); box.innerHTML = q.createSvgTag({cellSize:6, margin:2, scalable:true}); box.hidden = false; }
-  catch(e){ box.hidden = true; }
-}
-function drawTable(r, results){
-  const rule = RANK[r.game];
-  if(!rule){ $("bTable").innerHTML = `<div class="b-empty">Невідома гра</div>`; return; }
-  const players = {};
-  for(const x of results){
-    const key = x.name.toLowerCase();
-    const a = Object.assign({}, x.data, {t:x.t});
-    (players[key] = players[key] || {name:x.name, list:[], last:0}).list.push(a);
-    players[key].last = Math.max(players[key].last, x.t);
+  function drawRoom(r){
+    const first = !room || room.code !== r.code;
+    room = r;
+    const g = K.games[r.game] || {title:r.game, icon:"🎮"};
+    $("bGame").textContent = g.icon + " " + g.title;
+    $("bName").textContent = r.name;
+    $("bSet").textContent = K.settingsText(r);
+    $("bCode").textContent = r.code;
+    $("bHow").innerHTML = `Відкрий сайт → гра «${esc(g.title)}» → <b>Приєднатися до кімнати</b> → введи код і своє ім'я.` + (window.qrcode ? " Або скануй QR-код:" : "");
+    $("bClosed").hidden = r.open;
+    $("bToggle").textContent = r.open ? "Закрити кімнату" : "Відкрити кімнату";
+    $("bToggle").hidden = !myCodes.has(r.code);
+    if(first) drawQr(r);
   }
-  const rows = Object.values(players).map(p=>{ p.list.sort(rule.cmp); p.best = p.list[0]; return p; });
-  rows.sort((a,b)=>rule.cmp(a.best,b.best));
-  if(!rows.length){
-    $("bTable").innerHTML = `<div class="b-empty">Чекаємо на перші результати… ⏳<br>Учасників: 0</div>`;
-    seen = {}; return;
+  function drawQr(r){
+    const box = $("bQr");
+    if(!window.qrcode || location.protocol === "file:"){ box.hidden = true; return; }
+    try{ const q = qrcode(0, "M"); q.addData(K.link(r)); q.make(); box.innerHTML = q.createSvgTag({cellSize:6, margin:2, scalable:true}); box.hidden = false; }
+    catch(e){ box.hidden = true; }
   }
-  const medal = ["🥇","🥈","🥉"];
-  const html = `<table class="lb"><thead><tr><th>#</th><th>Учень</th>${rule.head.map((h,i)=>`<th class="num">${h}</th>`).join("")}</tr></thead><tbody>` +
-    rows.map((p,i)=>{
-      const fresh = seen && seen[p.name.toLowerCase()] !== p.last;
-      const cells = rule.cells(p.best, p.list.length);
-      return `<tr class="${i<3?"p"+(i+1):""} ${fresh?"fresh":""}"><td>${medal[i]||i+1}</td><td class="nm">${esc(p.name)}</td>${cells.map((c,j)=>`<td class="num ${j===0?"main":""}">${esc(c)}</td>`).join("")}</tr>`;
-    }).join("") + `</tbody></table>`;
-  $("bTable").innerHTML = html;
-  seen = {}; rows.forEach(p=>seen[p.name.toLowerCase()] = p.last);
-}
-$("bBack").onclick = ()=>{ location.hash = ""; };
-$("bFull").onclick = ()=>{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.(); };
-document.addEventListener("fullscreenchange", ()=>{ $("bFull").textContent = document.fullscreenElement ? "Вийти з повного екрана" : "На весь екран"; });
-$("bToggle").onclick = async ()=>{
-  if(!room) return;
-  try{ await api({action:"setOpen", code:room.code, open:!room.open}); }catch(e){}
-  refresh();
-};
-window.addEventListener("hashchange", route);
-if(DEMO) window.addEventListener("storage", e=>{ if(e.key === "kimnata-demo-db" && boardCode) refresh(); });
+  function drawTable(r, results){
+    const rule = RANK[r.game];
+    if(!rule){ $("bTable").innerHTML = `<div class="b-empty">Невідома гра</div>`; return; }
+    const players = {};
+    for(const x of results){
+      const key = x.name.toLowerCase();
+      const a = Object.assign({}, x.data, {t:x.t});
+      (players[key] = players[key] || {name:x.name, list:[], last:0}).list.push(a);
+      players[key].last = Math.max(players[key].last, x.t);
+    }
+    const rows = Object.values(players).map(p=>{ p.list.sort(rule.cmp); p.best = p.list[0]; return p; });
+    rows.sort((a,b)=>rule.cmp(a.best,b.best));
+    if(!rows.length){
+      $("bTable").innerHTML = `<div class="b-empty">Чекаємо на перші результати… ⏳<br>Учасників: 0</div>`;
+      seen = {}; return;
+    }
+    const medal = ["🥇","🥈","🥉"];
+    const html = `<table class="lb"><thead><tr><th>#</th><th>Учень</th>${rule.head.map((h,i)=>`<th class="num">${h}</th>`).join("")}</tr></thead><tbody>` +
+            rows.map((p,i)=>{
+              const fresh = seen && seen[p.name.toLowerCase()] !== p.last;
+              const cells = rule.cells(p.best, p.list.length);
+              return `<tr class="${i<3?"p"+(i+1):""} ${fresh?"fresh":""}"><td>${medal[i]||i+1}</td><td class="nm">${esc(p.name)}</td>${cells.map((c,j)=>`<td class="num ${j===0?"main":""}">${esc(c)}</td>`).join("")}</tr>`;
+            }).join("") + `</tbody></table>`;
+    $("bTable").innerHTML = html;
+    seen = {}; rows.forEach(p=>seen[p.name.toLowerCase()] = p.last);
+  }
+  $("bBack").onclick = ()=>{ location.hash = ""; };
+  $("bFull").onclick = ()=>{ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.(); };
+  document.addEventListener("fullscreenchange", ()=>{ $("bFull").textContent = document.fullscreenElement ? "Вийти з повного екрана" : "На весь екран"; });
+  $("bToggle").onclick = async ()=>{
+    if(!room) return;
+    try{ await api({action:"setOpen", code:room.code, open:!room.open}); }catch(e){}
+    refresh();
+  };
+  window.addEventListener("hashchange", route);
+  if(DEMO) window.addEventListener("storage", e=>{ if(e.key === "kimnata-demo-db" && boardCode) refresh(); });
 
-initManage();
-route();
+  initManage();
+  route();
 </script>
 </body>
 </html>

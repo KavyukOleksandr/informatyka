@@ -264,14 +264,14 @@ const KIMNATA_API = String(window.KIMNATA_API_URL || "").trim();
     const j = K.join, n = _try || 1;
     status(n > 1 ? "Повторюю надсилання…" : "Надсилаю результат…");
     call({ action: "submit", code: j.code, name: j.name, game: gameId, data })
-      .then(r => {
-        if (r.ok) status("✓ Результат надіслано на екран учителя", "ok");
-        else status("✗ " + (r.error || "Не вдалося надіслати"), "bad");
-      })
-      .catch(() => {
-        if (n < 4) { status("Немає зв'язку, пробую ще раз…", "bad"); setTimeout(() => K.report(data, n + 1), 3000 * n); }
-        else status("✗ Не вдалося надіслати. Перевір Інтернет.", "bad");
-      });
+        .then(r => {
+          if (r.ok) status("✓ Результат надіслано на екран учителя", "ok");
+          else status("✗ " + (r.error || "Не вдалося надіслати"), "bad");
+        })
+        .catch(() => {
+          if (n < 4) { status("Немає зв'язку, пробую ще раз…", "bad"); setTimeout(() => K.report(data, n + 1), 3000 * n); }
+          else status("✗ Не вдалося надіслати. Перевір Інтернет.", "bad");
+        });
   };
 
   /* детермінований генератор (однакові тексти для всіх у кімнаті) */

@@ -1,84 +1,92 @@
 <!doctype html>
 <html lang="uk">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="theme-color" content="#2B1F7A">
-<title>Інформатика — Володимирська гімназія №3</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap&subset=cyrillic" rel="stylesheet">
-<style>
-:root{
-  --page:#EEF1FF; --ink:#1A1B4B; --muted:#585C8C; --card:#FFFFFF; --line:#D6DBF5;
-  --desk:#2B1F7A; --blue:#2F6BFF; --violet:#7C4DFF; --amber:#FFC233;
-  --font:"Nunito","Segoe UI",Arial,system-ui,sans-serif;
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){ --page:#13113A; --ink:#ECEBFF; --muted:#AEADDA; --card:#221F58; --line:#3A3680; --desk:#1D1660; }
-}
-:root[data-theme="dark"]{ --page:#13113A; --ink:#ECEBFF; --muted:#AEADDA; --card:#221F58; --line:#3A3680; --desk:#1D1660; }
-*,*::before,*::after{box-sizing:inherit}
-html{height:100%; scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0; min-height:100%; background:var(--page); color:var(--ink); font-family:var(--font)}
-:focus-visible{outline:3px solid var(--amber); outline-offset:3px}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="theme-color" content="#2B1F7A">
+  <title>Інформатика — Володимирська гімназія №3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap&subset=cyrillic" rel="stylesheet">
+  <style>
+    :root{
+      --page:#EEF1FF; --ink:#1A1B4B; --muted:#585C8C; --card:#FFFFFF; --line:#D6DBF5;
+      --desk:#2B1F7A; --blue:#2F6BFF; --violet:#7C4DFF; --amber:#FFC233;
+      --font:"Nunito","Segoe UI",Arial,system-ui,sans-serif;
+      box-sizing:border-box;
+      padding-top:env(safe-area-inset-top,0px);
+      padding-bottom:env(safe-area-inset-bottom,0px);
+    }
+    @media (prefers-color-scheme: dark){
+      :root:not([data-theme="light"]){ --page:#13113A; --ink:#ECEBFF; --muted:#AEADDA; --card:#221F58; --line:#3A3680; --desk:#1D1660; }
+    }
+    :root[data-theme="dark"]{ --page:#13113A; --ink:#ECEBFF; --muted:#AEADDA; --card:#221F58; --line:#3A3680; --desk:#1D1660; }
+    *,*::before,*::after{box-sizing:inherit}
+    html{height:100%; scroll-padding-top:env(safe-area-inset-top,0px)}
+    body{margin:0; min-height:100%; background:var(--page); color:var(--ink); font-family:var(--font)}
+    :focus-visible{outline:3px solid var(--amber); outline-offset:3px}
 
-.hero{
-  background-color:var(--desk);
-  background-image:radial-gradient(rgba(255,255,255,.08) 1.5px, transparent 1.6px);
-  background-size:22px 22px; color:#fff;
-  padding:clamp(28px,6vw,64px) clamp(16px,4vw,48px) clamp(64px,9vw,96px);
-}
-.hero-in{max-width:1100px; margin:0 auto}
-.school{margin:0; font-size:clamp(30px,5.2vw,58px); font-weight:900; line-height:1.05}
-.subject{display:inline-block; margin-top:16px; background:var(--amber); color:#1A1B4B; font-weight:900;
-  font-size:clamp(18px,2.2vw,24px); padding:6px 16px; border-radius:12px}
-.teacher{margin:14px 0 0; font-size:clamp(17px,2vw,22px); font-weight:700; opacity:.92}
+    .hero{
+      background-color:var(--desk);
+      background-image:radial-gradient(rgba(255,255,255,.08) 1.5px, transparent 1.6px);
+      background-size:22px 22px; color:#fff;
+      padding:clamp(28px,6vw,64px) clamp(16px,4vw,48px) clamp(64px,9vw,96px);
+    }
+    .hero-in{max-width:1100px; margin:0 auto}
+    .school{margin:0; font-size:clamp(30px,5.2vw,58px); font-weight:900; line-height:1.05}
+    .subject{display:inline-block; margin-top:16px; background:var(--amber); color:#1A1B4B; font-weight:900;
+      font-size:clamp(18px,2.2vw,24px); padding:6px 16px; border-radius:12px}
+    .teacher{margin:14px 0 0; font-size:clamp(17px,2vw,22px); font-weight:700; opacity:.92}
 
-main{max-width:1100px; margin:-48px auto 0; padding:0 clamp(16px,4vw,48px) 48px}
-.panel{background:var(--card); border:2px solid var(--line); border-radius:24px; padding:clamp(18px,3vw,32px)}
-.panel h2{margin:0 0 4px; font-size:clamp(22px,2.6vw,30px); font-weight:900}
-.panel > p{margin:0 0 18px; color:var(--muted); font-weight:700}
-.filters{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 18px}
-.filters button{font:inherit; font-weight:800; border:2px solid var(--line); background:var(--card); color:var(--ink);
-  border-radius:12px; padding:6px 14px; cursor:pointer}
-.filters button[aria-pressed="true"]{background:var(--blue); border-color:var(--blue); color:#fff}
-.filters button span{display:inline-block; min-width:22px; margin-left:6px; padding:0 6px; border-radius:8px; font-size:13px;
-  background:var(--page); color:var(--muted)}
-.filters button[aria-pressed="true"] span{background:rgba(255,255,255,.25); color:#fff}
+    main{max-width:1100px; margin:-48px auto 0; padding:0 clamp(16px,4vw,48px) 48px}
+    .panel{background:var(--card); border:2px solid var(--line); border-radius:24px; padding:clamp(18px,3vw,32px)}
+    .panel h2{margin:0 0 4px; font-size:clamp(22px,2.6vw,30px); font-weight:900}
+    .panel > p{margin:0 0 18px; color:var(--muted); font-weight:700}
+    [hidden]{display:none !important}
+    .games-head{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px 24px; margin-bottom:18px}
+    .games-head p{margin:0; color:var(--muted); font-weight:700}
+    .filter{display:flex; flex-direction:column; gap:6px; min-width:min(280px,100%)}
+    .filter label{font-size:14px; font-weight:900; color:var(--muted)}
+    .select{position:relative}
+    .select select{appearance:none; -webkit-appearance:none; width:100%; font:inherit; font-weight:800; font-size:16px; color:var(--ink);
+      background:var(--card); border:2px solid var(--line); border-radius:14px; padding:10px 46px 10px 14px; cursor:pointer}
+    .select select:hover{border-color:var(--blue)}
+    .select select:focus-visible{outline:3px solid var(--amber); outline-offset:2px; border-color:var(--blue)}
+    .select::after{content:""; position:absolute; right:14px; top:50%; width:22px; height:22px; margin-top:-11px; border-radius:7px; pointer-events:none;
+      background:var(--blue) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 8l5 5 5-5' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat}
+    .select select option{color:#1A1B4B; background:#fff}
+    .filter-note{font-size:13px; font-weight:800; color:var(--muted)}
+    .filter-note button{font:inherit; border:0; background:none; color:var(--blue); cursor:pointer; padding:0; text-decoration:underline}
 
-.games{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px; list-style:none; margin:0; padding:0}
-.game{display:flex; flex-direction:column; gap:10px; height:100%; padding:20px; border-radius:20px; text-decoration:none; color:inherit;
-  background:color-mix(in srgb, var(--blue) 7%, var(--card)); border:2px solid transparent; transition:border-color .15s, transform .15s}
-.game:hover{border-color:var(--blue); transform:translateY(-2px)}
-.g-top{display:flex; align-items:center; gap:12px}
-.g-icon{width:56px; height:56px; flex:none; border-radius:16px; background:var(--desk); display:grid; place-items:center; font-size:30px}
-.g-title{margin:0; font-size:21px; font-weight:900; line-height:1.15}
-.g-desc{margin:0; color:var(--muted); font-weight:600; line-height:1.4; flex:1}
-.g-meta{display:flex; flex-wrap:wrap; gap:6px}
-.tag{font-size:13px; font-weight:800; border-radius:8px; padding:2px 9px; background:var(--card); border:1.5px solid var(--line)}
-.tag.grade{background:var(--violet); border-color:var(--violet); color:#fff}
-.play{align-self:flex-start; background:var(--blue); color:#fff; font-weight:900; border-radius:12px; padding:8px 18px}
+    .games{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px; list-style:none; margin:0; padding:0}
+    .game{display:flex; flex-direction:column; gap:10px; height:100%; padding:20px; border-radius:20px; text-decoration:none; color:inherit;
+      background:color-mix(in srgb, var(--blue) 7%, var(--card)); border:2px solid transparent; transition:border-color .15s, transform .15s}
+    .game:hover{border-color:var(--blue); transform:translateY(-2px)}
+    .g-top{display:flex; align-items:center; gap:12px}
+    .g-icon{width:56px; height:56px; flex:none; border-radius:16px; background:var(--desk); display:grid; place-items:center; font-size:30px}
+    .g-title{margin:0; font-size:21px; font-weight:900; line-height:1.15}
+    .g-desc{margin:0; color:var(--muted); font-weight:600; line-height:1.4; flex:1}
+    .g-meta{display:flex; flex-wrap:wrap; gap:6px}
+    .tag{font-size:13px; font-weight:800; border-radius:8px; padding:2px 9px; background:var(--card); border:1.5px solid var(--line)}
+    .tag.grade{background:var(--violet); border-color:var(--violet); color:#fff}
+    .play{align-self:flex-start; background:var(--blue); color:#fff; font-weight:900; border-radius:12px; padding:8px 18px}
 
-footer{max-width:1100px; margin:0 auto; padding:0 clamp(16px,4vw,48px) 32px; color:var(--muted); font-weight:700; font-size:14px}
-@media (prefers-reduced-motion: reduce){ *{transition:none !important} }
-.join{display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; margin-bottom:18px;
-  background:color-mix(in srgb, var(--amber) 22%, var(--card)); border:2px solid var(--amber); border-radius:24px; padding:16px clamp(16px,3vw,28px)}
-.join h2{margin:0; font-size:clamp(20px,2.2vw,26px); font-weight:900; flex:1 1 220px}
-.join form{display:flex; gap:8px; flex-wrap:wrap}
-.join input{font-family:"JetBrains Mono",Consolas,monospace; font-weight:700; font-size:24px; letter-spacing:6px; width:150px; text-align:center;
-  border:2px solid var(--line); border-radius:12px; padding:6px 10px; background:var(--card); color:var(--ink)}
-.join button{font:inherit; font-weight:900; font-size:17px; border:0; border-radius:12px; padding:8px 18px; background:var(--blue); color:#fff; cursor:pointer}
-.join .jmsg{flex-basis:100%; font-weight:800; color:#B42318; min-height:0}
-.join .jmsg:empty{display:none}
-footer a{color:inherit}
-</style>
+    footer{max-width:1100px; margin:0 auto; padding:0 clamp(16px,4vw,48px) 32px; color:var(--muted); font-weight:700; font-size:14px}
+    @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+    .join{display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; margin-bottom:18px;
+      background:color-mix(in srgb, var(--amber) 22%, var(--card)); border:2px solid var(--amber); border-radius:24px; padding:16px clamp(16px,3vw,28px)}
+    .join h2{margin:0; font-size:clamp(20px,2.2vw,26px); font-weight:900; flex:1 1 220px}
+    .join form{display:flex; gap:8px; flex-wrap:wrap}
+    .join input{font-family:"JetBrains Mono",Consolas,monospace; font-weight:700; font-size:24px; letter-spacing:6px; width:150px; text-align:center;
+      border:2px solid var(--line); border-radius:12px; padding:6px 10px; background:var(--card); color:var(--ink)}
+    .join button{font:inherit; font-weight:900; font-size:17px; border:0; border-radius:12px; padding:8px 18px; background:var(--blue); color:#fff; cursor:pointer}
+    .join .jmsg{flex-basis:100%; font-weight:800; color:#B42318; min-height:0}
+    .join .jmsg:empty{display:none}
+    footer a{color:inherit}
+  </style>
 </head>
 <body>
 <header class="hero">
@@ -99,9 +107,17 @@ footer a{color:inherit}
     <div class="jmsg" id="joinMsg"></div>
   </section>
   <section class="panel" aria-labelledby="gamesTitle">
-    <h2 id="gamesTitle">Ігри та тренажери</h2>
-    <p>Обери гру й відкрий її на комп'ютері, планшеті або телефоні.</p>
-    <div class="filters" id="filters" role="group" aria-label="Фільтр за темою" hidden></div>
+    <div class="games-head">
+      <div>
+        <h2 id="gamesTitle">Ігри та тренажери</h2>
+        <p>Обери гру й відкрий її на комп'ютері, планшеті або телефоні.</p>
+      </div>
+      <div class="filter" id="filterBox" hidden>
+        <label for="filters">Тема</label>
+        <div class="select"><select id="filters"></select></div>
+        <span class="filter-note" id="filterNote" hidden></span>
+      </div>
+    </div>
     <ul class="games" id="games"></ul>
   </section>
 </main>
@@ -110,99 +126,103 @@ footer a{color:inherit}
 <script src="nalashtuvannia.js"></script>
 <script src="kimnata.js"></script>
 <script>
-document.getElementById("joinCode").addEventListener("input", e=>{ e.target.value = e.target.value.replace(/\D/g,""); });
-document.getElementById("joinForm").addEventListener("submit", async e=>{
-  e.preventDefault();
-  const code = document.getElementById("joinCode").value.trim(), m = document.getElementById("joinMsg");
-  if(code.length !== 4){ m.textContent = "Код має складатися з 4 цифр."; return; }
-  m.style.color = ""; m.textContent = "Шукаю кімнату…";
-  try{
-    const r = await Kimnata.call({action:"room", code});
-    if(!r.ok){ m.textContent = r.error || "Кімнату не знайдено."; return; }
-    if(!r.room.open){ m.textContent = "Ця кімната вже закрита."; return; }
-    location.href = Kimnata.link(r.room);
-  }catch(err){ m.textContent = "Немає зв'язку із сервером. Спробуй ще раз."; }
-});
+  document.getElementById("joinCode").addEventListener("input", e=>{ e.target.value = e.target.value.replace(/\D/g,""); });
+  document.getElementById("joinForm").addEventListener("submit", async e=>{
+    e.preventDefault();
+    const code = document.getElementById("joinCode").value.trim(), m = document.getElementById("joinMsg");
+    if(code.length !== 4){ m.textContent = "Код має складатися з 4 цифр."; return; }
+    m.style.color = ""; m.textContent = "Шукаю кімнату…";
+    try{
+      const r = await Kimnata.call({action:"room", code});
+      if(!r.ok){ m.textContent = r.error || "Кімнату не знайдено."; return; }
+      if(!r.room.open){ m.textContent = "Ця кімната вже закрита."; return; }
+      location.href = Kimnata.link(r.room);
+    }catch(err){ m.textContent = "Немає зв'язку із сервером. Спробуй ще раз."; }
+  });
 </script>
 
 <script>
-/* ================================================================
-   СПИСОК ІГОР
-   Щоб додати нову гру:
-   1) завантаж її .html-файл у той самий репозиторій;
-   2) скопіюй блок { ... } нижче, встав після останнього (через кому)
-      і зміни назву, опис, теми, значок і назву файлу.
-   Теми (tags) — це мітки на плитці й кнопки фільтра. Гра може мати
-   кілька тем: tags: ["Безпека в Інтернеті", "Інтернет"].
-   Поле grade (клас) поки не показується на сайті.
-   ================================================================ */
-const GAMES = [
-  {
-    title: "Наведи лад на робочому столі",
-    desc:  "Розклади файли по кошиках за типом даних: текст, таблиці, презентації, зображення, звук і відео.",
-    grade: "5 клас",
-    tags:  ["Файли та розширення", "Типи даних"],
-    icon:  "🗂️",
-    file:  "sortuvannia-failiv.html"
-  },
-  {
-    title: "Юний кібердетектив",
-    desc:  "П'ять справ про безпеку в Інтернеті: надійні паролі, шахрайські повідомлення, незнайомці в чаті та що можна публікувати.",
-    grade: "5 клас",
-    tags:  ["Безпека в Інтернеті"],
-    icon:  "🕵️",
-    file:  "kiberdetektyv.html"
-  },
-  {
-    title: "Клавіатурний тренажер",
-    desc:  "Друкуй тексти українською та англійською на час. Чотири рівні: від основного ряду клавіш до цілих текстів.",
-    grade: "5 клас",
-    tags:  ["Клавіатура"],
-    icon:  "⌨️",
-    file:  "klaviaturnyi-trenazher.html"
-  },
-  {
-    title: "Збери комп'ютер",
-    desc:  "Склади системний блок із деталей — материнська плата, процесор, пам'ять, відеокарта — і під'єднай периферію. Потім увімкни комп'ютер!",
-    grade: "5 клас",
-    tags:  ["Будова комп'ютера", "Пристрої введення-виведення"],
-    icon:  "🖥️",
-    file:  "zbery-kompiuter.html"
-  },
-];
+  /* ================================================================
+     СПИСОК ІГОР
+     Щоб додати нову гру:
+     1) завантаж її .html-файл у той самий репозиторій;
+     2) скопіюй блок { ... } нижче, встав після останнього (через кому)
+        і зміни назву, опис, теми, значок і назву файлу.
+     Теми (tags) — це мітки на плитці й кнопки фільтра. Гра може мати
+     кілька тем: tags: ["Безпека в Інтернеті", "Інтернет"].
+     Поле grade (клас) поки не показується на сайті.
+     ================================================================ */
+  const GAMES = [
+    {
+      title: "Наведи лад на робочому столі",
+      desc:  "Розклади файли по кошиках за типом даних: текст, таблиці, презентації, зображення, звук і відео.",
+      grade: "5 клас",
+      tags:  ["Файли та розширення", "Типи даних"],
+      icon:  "🗂️",
+      file:  "sortuvannia-failiv.html"
+    },
+    {
+      title: "Юний кібердетектив",
+      desc:  "П'ять справ про безпеку в Інтернеті: надійні паролі, шахрайські повідомлення, незнайомці в чаті та що можна публікувати.",
+      grade: "5 клас",
+      tags:  ["Безпека в Інтернеті"],
+      icon:  "🕵️",
+      file:  "kiberdetektyv.html"
+    },
+    {
+      title: "Клавіатурний тренажер",
+      desc:  "Друкуй тексти українською та англійською на час. Чотири рівні: від основного ряду клавіш до цілих текстів.",
+      grade: "5 клас",
+      tags:  ["Клавіатура"],
+      icon:  "⌨️",
+      file:  "klaviaturnyi-trenazher.html"
+    },
+    {
+      title: "Збери комп'ютер",
+      desc:  "Склади системний блок із деталей — материнська плата, процесор, пам'ять, відеокарта — і під'єднай периферію. Потім увімкни комп'ютер!",
+      grade: "5 клас",
+      tags:  ["Будова комп'ютера", "Пристрої введення-виведення"],
+      icon:  "🖥️",
+      file:  "zbery-kompiuter.html"
+    },
+  ];
 
-const list = document.getElementById("games"), filters = document.getElementById("filters");
-const ALL = "Усі";
-let current = ALL;
-try{ current = sessionStorage.getItem("games-tag") || ALL; }catch(e){}
-function esc(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
-const tagsOf = g => [].concat(g.tags || g.topic || []);
-const allTags = [...new Set(GAMES.flatMap(tagsOf))];
-if(current !== ALL && !allTags.includes(current)) current = ALL;
+  const list = document.getElementById("games"), filters = document.getElementById("filters");
+  const ALL = "Усі";
+  let current = ALL;
+  try{ current = sessionStorage.getItem("games-tag") || ALL; }catch(e){}
+  function esc(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+  const tagsOf = g => [].concat(g.tags || g.topic || []);
+  const allTags = [...new Set(GAMES.flatMap(tagsOf))];
+  if(current !== ALL && !allTags.includes(current)) current = ALL;
 
-function render(){
-  const shown = GAMES.filter(g => current === ALL || tagsOf(g).includes(current));
-  list.innerHTML = shown.map(g => `
+  function render(){
+    const shown = GAMES.filter(g => current === ALL || tagsOf(g).includes(current));
+    list.innerHTML = shown.map(g => `
     <li><a class="game" href="${esc(g.file)}">
       <div class="g-top"><span class="g-icon" aria-hidden="true">${esc(g.icon)}</span><h3 class="g-title">${esc(g.title)}</h3></div>
       <p class="g-desc">${esc(g.desc)}</p>
       <div class="g-meta">${tagsOf(g).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>
       <span class="play">Грати</span>
     </a></li>`).join("");
-  filters.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.tag === current));
-}
-if(allTags.length > 1){
-  filters.hidden = false;
-  const count = t => t === ALL ? GAMES.length : GAMES.filter(g=>tagsOf(g).includes(t)).length;
-  filters.innerHTML = [ALL, ...allTags].map(t=>`<button data-tag="${esc(t)}">${esc(t)}<span>${count(t)}</span></button>`).join("");
-  filters.addEventListener("click", e=>{
-    const b = e.target.closest("button"); if(!b) return;
-    current = b.dataset.tag;
+    filters.value = current;
+    const note = document.getElementById("filterNote");
+    note.hidden = current === ALL;
+    note.innerHTML = current === ALL ? "" : `Показано ${shown.length} з ${GAMES.length} · <button type="button" id="showAll">показати всі</button>`;
+    if(current !== ALL) document.getElementById("showAll").onclick = ()=>setTag(ALL);
+  }
+  function setTag(t){
+    current = t;
     try{ sessionStorage.setItem("games-tag", current); }catch(err){}
     render();
-  });
-}
-render();
+  }
+  if(allTags.length > 1){
+    document.getElementById("filterBox").hidden = false;
+    const count = t => t === ALL ? GAMES.length : GAMES.filter(g=>tagsOf(g).includes(t)).length;
+    filters.innerHTML = [ALL, ...allTags].map(t=>`<option value="${esc(t)}">${esc(t === ALL ? "Усі теми" : t)} (${count(t)})</option>`).join("");
+    filters.addEventListener("change", ()=>setTag(filters.value));
+  }
+  render();
 </script>
 </body>
 </html>
